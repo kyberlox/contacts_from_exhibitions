@@ -126,10 +126,10 @@ async def login(
 
         # Ищем пользователя в нашей БД по external_id
         result = await db.execute(
-            select(User).where(User.id == external_id)
+            select(User).where(User.id == user_id)
         )
         user = result.scalar_one_or_none()
-
+        
         if user:
             # Обновляем существующего пользователя
             user.full_name = full_name
