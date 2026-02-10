@@ -16,7 +16,6 @@ class UserUpdate(BaseModel):
     position: Optional[str] = Field(None, max_length=255)
     department: Optional[str] = Field(None, max_length=255)
     is_admin: Optional[bool] = None
-    is_active: Optional[bool] = None
 
 class User(UserBase):
     id: int

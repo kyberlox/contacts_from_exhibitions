@@ -3,7 +3,7 @@ import requests
 import json
 from typing import Optional, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 import aiohttp
 import asyncio
 
@@ -35,12 +35,16 @@ class AuthService:
         Парсинг информации о пользователе из внешней системы
         """
         # Получаем ФИО
-        if 'full_name' in user_info:
-            full_name = user_info['full_name']
-        else:
-            last_name = user_info.get('LAST_NAME', '')
-            first_name = user_info.get('NAME', '')
-            middle_name = user_info.get('SECOND_NAME', '')
+        full_name = ''
+        if 'full_name' in user_info: full_name = user_info['full_name']
+
+        if 'fio' in user_info:
+            fio = user_info['full_name']
+
+            last_name = fio.get('LAST_NAME', '')
+            first_name = fio.get('NAME', '')
+            middle_name = fio.get('SECOND_NAME', '')
+
             full_name = f"{last_name} {first_name} {middle_name}".strip()
 
         return ExternalUserInfo(

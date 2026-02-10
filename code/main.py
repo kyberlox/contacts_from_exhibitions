@@ -126,7 +126,7 @@ async def login(
 
         # Ищем пользователя в нашей БД по external_id
         result = await db.execute(
-            select(User).where(User.external_id == external_id)
+            select(User).where(User.id == external_id)
         )
         user = result.scalar_one_or_none()
 
@@ -139,12 +139,11 @@ async def login(
         else:
             # Создаем нового пользователя
             user = User(
-                external_id=external_id,
+                id=external_id,
                 full_name=full_name,
                 department=department,
                 position=position,
                 is_admin=False,  # По умолчанию не админ
-                is_active=True,
                 last_login=func.now()
             )
             db.add(user)
@@ -164,7 +163,7 @@ async def login(
 
         response.set_cookie(
             key="user_id",
-            value=str(user.id),
+            value=str(external_id),
             httponly=True,
             secure=False,
             samesite="lax",
