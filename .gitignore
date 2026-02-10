@@ -1,0 +1,6 @@
+.env
+.gigaide
+.idea
+
+/code/uploads/
+/postgresql/
