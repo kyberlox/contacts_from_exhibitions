@@ -2,14 +2,12 @@
 from sqlalchemy import Column, String, Boolean, Integer, DateTime
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from .base import Base
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, index=True)
+    id = Column(Integer, primary_key=True, index=False)
     full_name = Column(String(255), nullable=False, index=True)
     position = Column(String(255), nullable=True, index=True)
     department = Column(String(255), nullable=True, index=True)
