@@ -113,6 +113,7 @@ async def login(
             )
 
         # Формируем ФИО
+        print(type(fio_data))
         if isinstance(fio_data, dict):
             last_name = fio_data.get('last_name', '')
             first_name = fio_data.get('first_name', '')
