@@ -91,6 +91,7 @@ async def login(
         'session_id': 'session_token_123'
     }
     """
+    print(user_data)
     try:
         # Извлекаем данные
         external_id = str(user_data.get('id', ''))
