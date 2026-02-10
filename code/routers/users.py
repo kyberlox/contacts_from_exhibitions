@@ -17,7 +17,6 @@ async def get_users(
         pagination: PaginationParams = Depends(),
         search: Optional[str] = Query(None, description="Поиск по ФИО, должности, отделу"),
         is_admin: Optional[bool] = Query(None, description="Фильтр по админам"),
-        is_active: Optional[bool] = Query(None, description="Фильтр по активности"),
         _: User = Depends(require_admin),  # Проверка прав администратора
         db: AsyncSession = Depends(get_db)
 ):
@@ -38,9 +37,6 @@ async def get_users(
     if is_admin is not None:
         query = query.where(User.is_admin == is_admin)
 
-    if is_active is not None:
-        query = query.where(User.is_active == is_active)
-
     # Сортировка по дате создания
     query = query.order_by(User.created_at.desc())
 
@@ -60,14 +56,10 @@ async def get_users(
     for user in users:
         items.append({
             "id": user.id,
-            "external_id": user.external_id,
             "full_name": user.full_name,
             "position": user.position,
             "department": user.department,
-            "email": user.email,
-            "phone": user.phone,
             "is_admin": user.is_admin,
-            "is_active": user.is_active,
             "last_login": user.last_login,
             "created_at": user.created_at,
             "updated_at": user.updated_at,
@@ -160,32 +152,7 @@ async def delete_user(
             detail="Пользователь не найден"
         )
 
-    # Не удаляем, а деактивируем
-    user.is_active = False
+    await db.delete(user)
     await db.commit()
 
     return None
-
-@router.post("/{user_id}/activate", response_model=UserSchema)
-async def activate_user(
-        user_id: int,
-        _: User = Depends(require_admin),  # Проверка прав администратора
-        db: AsyncSession = Depends(get_db)
-):
-    """Активация пользователя (только для администраторов)"""
-    result = await db.execute(
-        select(User).where(User.id == user_id)
-    )
-    user = result.scalar_one_or_none()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Пользователь не найден"
-        )
-
-    user.is_active = True
-    await db.commit()
-    await db.refresh(user)
-
-    return user
