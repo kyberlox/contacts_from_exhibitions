@@ -126,7 +126,7 @@ async def login(
 
         # Ищем пользователя в нашей БД по external_id
         result = await db.execute(
-            select(User).where(User.id == user_id)
+            select(User).where(User.id == external_id)
         )
         user = result.scalar_one_or_none()
         print(user)
