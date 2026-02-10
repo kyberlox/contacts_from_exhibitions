@@ -113,19 +113,10 @@ async def login(
             )
 
         # Формируем ФИО
-        if isinstance(fio_data, dict):
-            last_name = fio_data.get('last_name', '')
-            first_name = fio_data.get('first_name', '')
-            middle_name = fio_data.get('middle_name', '')
-            full_name = f"{last_name} {first_name} {middle_name}".strip()
-        if isinstance(fio_data, list):
-            fio_data = fio_data[0]
-            last_name = fio_data.get('last_name', '')
-            first_name = fio_data.get('first_name', '')
-            middle_name = fio_data.get('middle_name', '')
-            full_name = f"{last_name} {first_name} {middle_name}".strip()
-        else:
-            full_name = str(fio_data)
+        last_name = fio_data.get('last_name', '')
+        first_name = fio_data.get('first_name', '')
+        middle_name = fio_data.get('middle_name', '')
+        full_name = f"{last_name} {first_name} {middle_name}".strip()
 
         print(full_name)
 
