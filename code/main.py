@@ -91,7 +91,7 @@ async def login(
         'session_id': 'session_token_123'
     }
     """
-    print(user_data)
+    
     try:
         # Извлекаем данные
         external_id = int(user_data.get('id', None))
@@ -118,7 +118,7 @@ async def login(
         middle_name = fio_data.get('middle_name', '')
         full_name = f"{last_name} {first_name} {middle_name}".strip()
 
-        print(full_name)
+        
 
         if not full_name:
             full_name = "Неизвестный пользователь"
@@ -173,7 +173,6 @@ async def login(
             "message": "Успешная авторизация",
             "user": {
                 "id": user.id,
-                "external_id": user.external_id,
                 "full_name": user.full_name,
                 "department": user.department,
                 "position": user.position,
