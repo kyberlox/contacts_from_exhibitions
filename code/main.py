@@ -129,7 +129,7 @@ async def login(
             select(User).where(User.id == user_id)
         )
         user = result.scalar_one_or_none()
-
+        print(user)
         if user is not None:
             # Обновляем существующего пользователя
             user.full_name = full_name
