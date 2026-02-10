@@ -94,7 +94,7 @@ async def login(
     print(user_data)
     try:
         # Извлекаем данные
-        external_id = str(user_data.get('id', ''))
+        external_id = int(user_data.get('id', None))
         fio_data = user_data.get('fio', {})
         department = user_data.get('department')
         position = user_data.get('position')
