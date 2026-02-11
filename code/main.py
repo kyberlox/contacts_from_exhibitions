@@ -91,9 +91,10 @@ async def login(
         'session_id': 'session_token_123'
     }
     """
+
     try:
         # Извлекаем данные
-        external_id = str(user_data.get('id', ''))
+        external_id = int(user_data.get('id', None))
         fio_data = user_data.get('fio', {})
         department = user_data.get('department')
         position = user_data.get('position')
@@ -112,13 +113,12 @@ async def login(
             )
 
         # Формируем ФИО
-        if isinstance(fio_data, dict):
-            last_name = fio_data.get('last_name', '')
-            first_name = fio_data.get('first_name', '')
-            middle_name = fio_data.get('middle_name', '')
-            full_name = f"{last_name} {first_name} {middle_name}".strip()
-        else:
-            full_name = str(fio_data)
+        last_name = fio_data.get('last_name', '')
+        first_name = fio_data.get('first_name', '')
+        middle_name = fio_data.get('middle_name', '')
+        full_name = f"{last_name} {first_name} {middle_name}".strip()
+
+
 
         if not full_name:
             full_name = "Неизвестный пользователь"
@@ -129,7 +129,7 @@ async def login(
         )
         user = result.scalar_one_or_none()
         print(user)
-        if user:
+        if user is not None:
             # Обновляем существующего пользователя
             user.full_name = full_name
             user.department = department
@@ -173,7 +173,6 @@ async def login(
             "message": "Успешная авторизация",
             "user": {
                 "id": user.id,
-                "external_id": user.external_id,
                 "full_name": user.full_name,
                 "department": user.department,
                 "position": user.position,
