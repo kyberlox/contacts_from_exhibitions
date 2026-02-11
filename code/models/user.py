@@ -27,8 +27,7 @@ class User(Base):
         back_populates="validator",
         foreign_keys="Contact.validated_by_id"
     )
-    # Обратная связь: в каких выставках участвует пользователь
-    exhibitions_joined = relationship("ExhibitionParticipant", back_populates="user")
+
 
     def __repr__(self):
         return f"<User(id={self.id}, full_name='{self.full_name}', is_admin={self.is_admin})>"
