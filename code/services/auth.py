@@ -26,7 +26,7 @@ async def get_current_user(
         )
         user = result.scalar_one_or_none()
 
-        if not user or not user.is_active:
+        if not user:
             return None
 
         return user
@@ -42,7 +42,7 @@ async def get_current_active_user(
     """
     Проверяет, что пользователь активен
     """
-    if current_user and not current_user.is_active:
+    if current_user:
         return None
     return current_user
 
