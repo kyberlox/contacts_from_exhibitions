@@ -36,18 +36,8 @@ async def get_current_user(
         print(f"Ошибка при получении пользователя: {e}")
         return None
 
-async def get_current_active_user(
-        current_user: Optional[User] = Depends(get_current_user)
-) -> Optional[User]:
-    """
-    Проверяет, что пользователь активен
-    """
-    if current_user:
-        return None
-    return current_user
-
 async def require_admin(
-        current_user: Optional[User] = Depends(get_current_active_user)
+        current_user: Optional[User] = Depends(get_current_user)
 ) -> User:
     """
     Требует, чтобы пользователь был администратором
@@ -66,7 +56,7 @@ async def require_admin(
     return current_user
 
 async def require_auth(
-        current_user: Optional[User] = Depends(get_current_active_user)
+        current_user: Optional[User] = Depends(get_current_user)
 ) -> User:
     """
     Требует авторизации (любой пользователь)
