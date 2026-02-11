@@ -12,6 +12,7 @@ import shutil
 from models.database import get_db
 from models.contact import Contact, ContactFileType, contact_file_association
 from models.file import File as FileModel
+from models.user import User
 from models.exhibition import Exhibition
 from schemas.contact import (
     ContactCreate,
@@ -31,7 +32,7 @@ from schemas.contact import (
 )
 from schemas.base import PaginationParams, PaginatedResponse
 
-from services.auth import get_optional_user, require_admin
+from services.auth import get_optional_user, require_admin, require_auth
 from models.user import User
 
 
@@ -267,18 +268,24 @@ async def create_contacts_batch(
 
     return created_contacts
 
-@router.get("/", response_model=PaginatedResponse)
+@router.get("/", response_model=PaginatedResponse, dependencies=[Depends(require_auth)])
 async def get_contacts(
         pagination: PaginationParams = Depends(),
         exhibition_id: Optional[int] = Query(None, description="Фильтр по выставке"),
         search: Optional[str] = Query(None, description="Поиск по текстовым полям"),
         date_from: Optional[date] = Query(None, description="Дата создания от"),
         date_to: Optional[date] = Query(None, description="Дата создания до"),
-        db: AsyncSession = Depends(get_db)
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_optional_user)
 ):
     """Получение списка контактов с пагинацией и фильтрацией"""
     # Строим базовый запрос
     query = select(Contact)
+
+    if not current_user.is_admin:
+        if not current_user.id:
+            raise HTTPException(status_code=403, detail="Доступ запрещён")
+        query = query.where(Contact.author_id == current_user.id)
 
     # Применяем фильтры
     if exhibition_id:
@@ -382,11 +389,12 @@ async def get_contact(
         "exhibition": exhibition_data,
     }
 
-@router.put("/{contact_id}", response_model=ContactWithExhibition)
+@router.put("/{contact_id}", response_model=ContactWithExhibition, dependencies=[Depends(require_auth)])
 async def update_contact(
         contact_id: int,
         contact_data: ContactUpdate,
-        db: AsyncSession = Depends(get_db)
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_optional_user)
 ):
     """Обновление контакта"""
     result = await db.execute(
@@ -398,6 +406,12 @@ async def update_contact(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Контакт не найден"
+        )
+
+    if current_user.id != contact.author_id and not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="У вас нет прав на редактирование этого контакта"
         )
 
     # Проверяем на дубликаты (исключая текущий контакт)
