@@ -408,11 +408,12 @@ async def update_contact(
             detail="Контакт не найден"
         )
 
-    if current_user.id != contact.author_id and not current_user.is_admin:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="У вас нет прав на редактирование этого контакта"
-        )
+    if current_user.id != contact.author_id:
+        if not current_user.is_admin:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="У вас нет прав на редактирование этого контакта"
+            )
 
     # Проверяем на дубликаты (исключая текущий контакт)
     update_dict = contact_data.dict(exclude_unset=True)
