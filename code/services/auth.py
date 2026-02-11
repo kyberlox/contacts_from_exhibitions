@@ -52,7 +52,13 @@ async def require_admin(
     """
     Требует, чтобы пользователь был администратором
     """
-    if not current_user or not current_user.is_admin:
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Требуется авторизация"
+        )
+
+    if not current_user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Требуются права администратора"
