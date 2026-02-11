@@ -15,6 +15,7 @@ async def get_current_user(
     """
     Dependency для получения текущего пользователя из куки
     """
+    print(f"session_id: {session_id}, current_user_id: {current_user_id}")
     if not current_user_id or not session_id:
         return None
 
