@@ -1,5 +1,6 @@
 # main.py
-from fastapi import FastAPI, Response, Cookie, HTTPException, status, Depends, RedirectResponse
+from fastapi import FastAPI, Response, Cookie, HTTPException, status, Depends
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
