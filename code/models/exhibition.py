@@ -1,5 +1,5 @@
 # models/exhibition.py
-from sqlalchemy import Column, String, Text, Date, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, String, Text, Date, Integer, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -10,6 +10,7 @@ class Exhibition(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(200), nullable=False, index=True)
+    is_active = Column(Boolean, default=True, index=True)  # текущая выставка
     description = Column(Text)
     start_date = Column(Date, nullable=False, index=True)
     end_date = Column(Date, nullable=False, index=True)

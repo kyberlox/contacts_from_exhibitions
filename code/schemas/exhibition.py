@@ -9,6 +9,7 @@ from .file import FileShort
 class ExhibitionBase(BaseSchema):
     title: str = Field(..., max_length=200, description="Название выставки")
     description: Optional[str] = Field(None, description="Описание выставки")
+    is_active: bool = Field(True, description="Активна ли выставка")
     start_date: date = Field(..., description="Дата начала выставки")
     end_date: date = Field(..., description="Дата окончания выставки")
     preview_file_id: Optional[int] = Field(None, description="ID превью файла")
@@ -26,6 +27,7 @@ class ExhibitionCreate(ExhibitionBase):
 class ExhibitionUpdate(BaseSchema):
     title: Optional[str] = Field(None, max_length=200)
     description: Optional[str] = None
+    is_active: Optional[bool] = None
     start_date: Optional[date] = None
     end_date: Optional[date] = None
     preview_file_id: Optional[int] = None
@@ -77,6 +79,8 @@ class ExhibitionFilter(BaseSchema):
 class ExhibitionShort(BaseSchema):
     id: int
     title: str
+    description: Optional[str] = None
+    is_active: bool = True
     start_date: date
     end_date: date
     preview_file: Optional[FileShort] = None
@@ -90,6 +94,7 @@ class ExhibitionSimple(BaseSchema):
     id: int
     title: str
     description: Optional[str] = None
+    is_active: bool = True
     start_date: date
     end_date: date
     preview_file_id: Optional[int] = None
@@ -102,6 +107,7 @@ class ExhibitionWithContactsSimple(BaseSchema):
     id: int
     title: str
     description: Optional[str] = None
+    is_active: bool = True
     start_date: date
     end_date: date
     preview_file_id: Optional[int] = None

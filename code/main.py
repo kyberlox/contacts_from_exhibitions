@@ -1,5 +1,5 @@
 # main.py
-from fastapi import FastAPI, Response, Cookie, HTTPException, status, Depends
+from fastapi import FastAPI, Response, Cookie, HTTPException, status, Depends, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
@@ -179,6 +179,11 @@ async def login(
                 "is_admin": user.is_admin
             }
         }
+
+        # if user.is_admin:
+        #     return RedirectResponse(url="/exhibitions")
+        # elif user.is_admin is False:
+        #     return RedirectResponse(url="/exhibitions")
 
     except Exception as e:
         await db.rollback()

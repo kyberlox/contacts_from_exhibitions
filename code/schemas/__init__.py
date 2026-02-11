@@ -62,6 +62,8 @@ from .base import BaseSchema
 class ExhibitionShort(BaseSchema):
     id: int
     title: str
+    description: Optional[str] = None
+    is_active: bool = True
     start_date: date
     end_date: date
     preview_file: Optional[FileShort] = None

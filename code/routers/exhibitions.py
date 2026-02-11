@@ -9,6 +9,8 @@ from pathlib import Path
 
 from models.database import get_db
 from models.exhibition import Exhibition
+from models.user import User
+from models.contact import Contact
 from models.file import File as FileModel
 from schemas import (
     ExhibitionCreate,
@@ -21,7 +23,7 @@ from schemas import (
     ExhibitionWithContactsSimple
 )
 from schemas.base import PaginatedResponse
-from services.auth import require_admin
+from services.auth import require_admin, require_auth, get_current_user
 
 router = APIRouter(prefix="/exhibitions", tags=["Выставки"])
 
@@ -57,15 +59,17 @@ async def create_exhibition(
         "updated_at": db_exhibition.updated_at,
     }
 
-@router.get("/", response_model=PaginatedResponse, dependencies=[Depends(require_admin)])
+@router.get("/", response_model=PaginatedResponse, dependencies=[Depends(require_auth)])
 async def get_exhibitions(
         pagination: PaginationParams = Depends(),
         active_only: bool = Query(False, description="Только активные выставки"),
         sort_by: str = Query("start_date", description="Поле для сортировки"),
         sort_desc: bool = Query(True, description="Сортировка по убыванию"),
-        db: AsyncSession = Depends(get_db)
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_current_user)
 ):
     """Получение списка выставок с пагинацией и сортировкой"""
+
     # Строим базовый запрос
     query = select(Exhibition)
 
@@ -75,6 +79,22 @@ async def get_exhibitions(
         query = query.where(
             (Exhibition.start_date <= today) &
             (Exhibition.end_date >= today)
+        )
+
+    if not current_user.is_admin:
+        # Получаем ID выставок, где пользователь создавал контакты
+        subquery = (
+            select(Contact.exhibition_id)
+            .where(Contact.author_id == current_user.id)
+            .distinct()
+        )
+
+        # Фильтруем: активные ИЛИ те, где пользователь участвовал
+        query = query.where(
+            or_(
+                Exhibition.is_active == True,
+                Exhibition.id.in_(subquery)
+            )
         )
 
     # Сортировка
@@ -117,6 +137,8 @@ async def get_exhibitions(
         limit=pagination.limit,
         items=items
     )
+
+
 
 @router.get("/{exhibition_id}", response_model=ExhibitionWithContactsSimple, dependencies=[Depends(require_admin)])
 async def get_exhibition(
