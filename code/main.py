@@ -85,11 +85,11 @@ async def login(
 
     Принимает данные в формате:
     {
-        'id': 'external_user_id',
-        'fio': {'last_name': 'Иванов', 'first_name': 'Иван', 'middle_name': 'Иванович'},
-        'department': 'Отдел продаж',
-        'position': 'Менеджер',
-        'session_id': 'session_token_123'
+        "id": "external_user_id",
+        "fio": {"last_name": "Иванов", "first_name": "Иван", "middle_name": "Иванович"},
+        "department": "Отдел продаж",
+        "position": "Менеджер",
+        "session_id": "session_token_123"
     }
     """
     
