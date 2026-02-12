@@ -9,7 +9,7 @@ from models.exhibition import Exhibition
 
 async def get_current_exhibition(
         db: AsyncSession = Depends(get_db)
-) -> Optional[User]:
+) -> Optional[Exhibition]:
     """
     Dependency для получения текущего пользователя из куки
     """
@@ -26,7 +26,7 @@ async def get_current_exhibition(
         
         exhibition_active = result.scalar_one_or_none()
 
-        if not user:
+        if exhibition_active is None:
             return None
 
         return exhibition_active.id
