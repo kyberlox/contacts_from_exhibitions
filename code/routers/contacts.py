@@ -34,6 +34,7 @@ from schemas.base import PaginationParams, PaginatedResponse
 
 from services.auth import get_optional_user, require_admin, require_auth
 from models.user import User
+from services.active_exhibition import get_current_exhibition
 
 
 
@@ -159,17 +160,21 @@ async def create_contact(
         db: AsyncSession = Depends(get_db)
 ):
     """Создание нового контакта"""
-    # Проверяем существование выставки
-    exhibition_result = await db.execute(
-        select(Exhibition).where(Exhibition.id == contact_data.exhibition_id)
-    )
-    exhibition = exhibition_result.scalar_one_or_none()
 
-    if not exhibition:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Выставка не найдена"
+    if contact_data.exhibition_id is not None:
+        # Проверяем существование выставки
+        exhibition_result = await db.execute(
+            select(Exhibition).where(Exhibition.id == contact_data.exhibition_id)
         )
+        exhibition = exhibition_result.scalar_one_or_none()
+
+        if not exhibition:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Выставка не найдена"
+            )
+    else:
+        contact_data.exhibition_id = get_current_exhibition()
 
     # Подготавливаем данные
     contact_dict = contact_data.dict(exclude_none=True)
