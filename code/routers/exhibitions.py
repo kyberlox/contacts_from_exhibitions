@@ -141,7 +141,7 @@ async def get_exhibitions(
 
 
 @router.get("/{exhibition_id}", response_model=ExhibitionWithContactsSimple, dependencies=[Depends(require_admin)])
-async def get_exhibition(
+async def get_exhibition_id(
         exhibition_id: int,
         db: AsyncSession = Depends(get_db)
 ):
