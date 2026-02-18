@@ -18,13 +18,12 @@ async def get_current_user(
     """
     print(f"session_id: {session_id}, current_user_id: {current_user_id}")
     if not current_user_id or not session_id:
-        try:
-            #пытаемся получить из headers
-            current_user_id = request.headers.get("user_id")
-            session_id = request.headers.get("session_id")
+        #пытаемся получить из headers
+        current_user_id = request.headers.get("user_id")
+        session_id = request.headers.get("session_id")
 
-            if not current_user_id or not session_id:
-                return None
+        if not current_user_id or not session_id:
+            return None
 
 
 
