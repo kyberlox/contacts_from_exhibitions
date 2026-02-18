@@ -18,18 +18,9 @@ async def get_current_exhibition(
     result = await db.execute(
             select(Exhibition).where(Exhibition.is_active == True)
         )
+    exhibition_active = result.scalar_one_or_none()
 
-    try:
-        # Ищем в БД
-        
-        exhibition_active = result.scalar_one_or_none()
-
-        if exhibition_active is None:
-            return None
-
-        return exhibition_active.id
-
-    except Exception as e:
-        # В случае ошибки возвращаем None
-        print(f"Ошибка при получении текущей выставки: {e}")
+    if exhibition_active is None:
         return None
+
+    return exhibition_active.id
