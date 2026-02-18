@@ -15,7 +15,7 @@ class ContactBase(BaseSchema):
     position: str = Field(..., max_length=255, description="Должность контакта")
     email: EmailStr = Field(..., max_length=255, description="Email контакта")
     phone_number: str = Field(..., max_length=50, description="Номер телефона")
-    exhibition_id: int = Field(..., description="ID выставки")
+    exhibition_id: Optional[int] = Field(..., description="ID выставки")
 
 # Создание контакта
 class ContactCreate(ContactBase):
@@ -24,15 +24,15 @@ class ContactCreate(ContactBase):
         description="Анкета в формате JSON"
     )
 
-    @field_validator('phone_number')
-    @classmethod
-    def validate_phone_number(cls, v):
-        # Базовая валидация номера телефона
-        phone_regex = r'^[\d\s\-\+\(\)\.]+$'
-        if not re.match(phone_regex, v):
-            raise ValueError('Номер телефона содержит недопустимые символы')
+    # @field_validator('phone_number')
+    # @classmethod
+    # def validate_phone_number(cls, v):
+    #     # Базовая валидация номера телефона
+    #     phone_regex = r'^[\d\s\-\+\(\)\.]+$'
+    #     if not re.match(phone_regex, v):
+    #         raise ValueError('Номер телефона содержит недопустимые символы')
 
-        return v
+    #     return v
 
 # Обновление контакта
 class ContactUpdate(BaseSchema):
