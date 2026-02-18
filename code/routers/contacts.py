@@ -161,10 +161,13 @@ async def create_contact(
 ):
     """Создание нового контакта"""
 
-    if contact_data.exhibition_id is not None:
+    # Подготавливаем данные
+    contact_dict = contact_data.dict(exclude_none=True)
+
+    if "exhibition_id" in contact_dict and contact_dict["exhibition_id"] is not None:
         # Проверяем существование выставки
         exhibition_result = await db.execute(
-            select(Exhibition).where(Exhibition.id == contact_data.exhibition_id)
+            select(Exhibition).where(Exhibition.id == contact_dict["exhibition_id"])
         )
         exhibition = exhibition_result.scalar_one_or_none()
 
@@ -174,10 +177,9 @@ async def create_contact(
                 detail="Выставка не найдена"
             )
     else:
-        contact_data.exhibition_id = get_current_exhibition()
+        contact_dict["exhibition_id"] = get_current_exhibition()
 
-    # Подготавливаем данные
-    contact_dict = contact_data.dict(exclude_none=True)
+    
 
     # Приводим email к нижнему регистру
     if 'email' in contact_dict and contact_dict['email']:
