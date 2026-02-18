@@ -16,14 +16,16 @@ async def get_current_user(
     """
     Dependency для получения текущего пользователя из куки
     """
-    print(f"session_id: {session_id}, current_user_id: {current_user_id}")
+    
     if not current_user_id or not session_id:
         #пытаемся получить из headers
+        print(request.headers)
         current_user_id = request.headers.get("user_id")
         session_id = request.headers.get("session_id")
 
         if not current_user_id or not session_id:
             return None
+    print(f"session_id: {session_id}, current_user_id: {current_user_id}")
 
 
 
