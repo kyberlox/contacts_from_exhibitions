@@ -177,7 +177,7 @@ async def create_contact(
                 detail="Выставка не найдена"
             )
     else:
-        contact_dict["exhibition_id"] = get_current_exhibition(db)
+        contact_dict["exhibition_id"] = await get_current_exhibition(db)
 
     
 
