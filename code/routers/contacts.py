@@ -157,7 +157,8 @@ async def create_contact(
         contact_data: ContactCreate,
         background_tasks: BackgroundTasks,
         current_user: Optional[User] = Depends(get_optional_user),
-        db: AsyncSession = Depends(get_db)
+        db: AsyncSession = Depends(get_db),
+        current_exhibition = Depends(get_current_exhibition)
 ):
     """Создание нового контакта"""
 
@@ -177,7 +178,7 @@ async def create_contact(
                 detail="Выставка не найдена"
             )
     else:
-        contact_dict["exhibition_id"] = await get_current_exhibition(db)
+        contact_dict["exhibition_id"] = current_exhibition #await get_current_exhibition(db)
 
     
 

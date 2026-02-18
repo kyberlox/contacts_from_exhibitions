@@ -8,8 +8,8 @@ from models.database import get_db
 from models.exhibition import Exhibition
 
 async def get_current_exhibition(
-        db: AsyncSession
-) -> Optional[Exhibition]:
+        db: AsyncSession = Depends(get_db)
+) -> Optional[int]:
     """
     Dependency для получения текущего пользователя из куки
     """
@@ -20,7 +20,7 @@ async def get_current_exhibition(
         )
 
     try:
-        # Ищем пользователя в БД
+        # Ищем в БД
         
         exhibition_active = result.scalar_one_or_none()
 
