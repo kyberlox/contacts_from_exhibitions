@@ -11,7 +11,7 @@ async def get_current_user(
         # request: Request,
         # session_id: Optional[str] = Cookie(None, alias="session_id"),
         # current_user_id: Optional[int] = Cookie(None, alias="user_id"),
-        user_id: Optional[str] = request.headers.get("user_id")
+        current_user_id: Optional[str] = request.headers.get("user_id")
         session_id: Optional[str] = request.headers.get("session_id")
         db: AsyncSession = Depends(get_db)
 ) -> Optional[User]:
