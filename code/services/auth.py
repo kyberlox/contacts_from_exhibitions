@@ -1,5 +1,5 @@
 # dependencies/auth.py
-from fastapi import Depends, HTTPException, status, Cookie
+from fastapi import Depends, HTTPException, status, Cookie, Request
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -8,6 +8,7 @@ from models.database import get_db
 from models.user import User
 
 async def get_current_user(
+        request: Request,
         session_id: Optional[str] = Cookie(None, alias="session_id"),
         current_user_id: Optional[int] = Cookie(None, alias="user_id"),
         db: AsyncSession = Depends(get_db)
@@ -17,7 +18,15 @@ async def get_current_user(
     """
     print(f"session_id: {session_id}, current_user_id: {current_user_id}")
     if not current_user_id or not session_id:
-        return None
+        try:
+            #пытаемся получить из headers
+            current_user_id = request.headers.get("user_id")
+            session_id = request.headers.get("session_id")
+
+            if not current_user_id or not session_id:
+                return None
+
+
 
     try:
         # Ищем пользователя в БД
