@@ -81,6 +81,7 @@ async def require_auth(
     return current_user
 
 async def get_optional_user(
+        request: Request,
         session_id: Optional[str] = Cookie(None, alias="session_id"),
         current_user_id: Optional[int] = Cookie(None, alias="user_id"),
         db: AsyncSession = Depends(get_db)
@@ -89,4 +90,4 @@ async def get_optional_user(
     Dependency для получения пользователя (опционально)
     Возвращает пользователя или None если не авторизован
     """
-    return await get_current_user(session_id, current_user_id, db)
+    return await get_current_user(request, session_id, current_user_id, db)
