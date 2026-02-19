@@ -224,8 +224,8 @@ async def create_contact(
 
     contact = result.scalar_one()
     #return contact
-    
-    Возвращаем данные вручную вместо from_orm()
+
+    # Возвращаем данные вручную вместо from_orm()
     return {
         "id": contact.id,
         "title": contact.title,
