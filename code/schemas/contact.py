@@ -13,7 +13,8 @@ class ContactBase(BaseSchema):
     description: Optional[str] = Field(None, description="Дополнительное описание")
     full_name: str = Field(..., max_length=255, description="ФИО контакта")
     position: str = Field(..., max_length=255, description="Должность контакта")
-    email: EmailStr = Field(..., max_length=255, description="Email контакта")
+    #email: EmailStr = Field(..., max_length=255, description="Email контакта")
+    email: str = Field(..., max_length=255, description="Email контакта")
     phone_number: str = Field(..., max_length=50, description="Номер телефона")
     #exhibition_id: Optional[int] = Field(..., description="ID выставки")
 
