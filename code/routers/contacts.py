@@ -208,6 +208,7 @@ async def create_contact(
     # Добавляем автора, если пользователь авторизован
     if current_user:
         contact_dict['author_id'] = current_user.id
+        print('author_id', current_user.id)
 
     # Создаем контакт
     db_contact = Contact(**contact_dict)
