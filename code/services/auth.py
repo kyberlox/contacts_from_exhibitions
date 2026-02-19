@@ -25,12 +25,14 @@ async def get_current_user(
 
         if not current_user_id or not session_id:
             return None
+        
+        current_user_id = int(current_user_id)
     print(f"session_id: {session_id}, current_user_id: {current_user_id}")
 
 
 
     try:
-        current_user_id = int(current_user_id)
+        
         # Ищем пользователя в БД
         result = await db.execute(
             select(User).where(User.id == current_user_id)
