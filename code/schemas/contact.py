@@ -46,21 +46,21 @@ class ContactUpdate(BaseSchema):
     notes: Optional[str] = Field(None, description="Заметки администратора")
     is_validated: Optional[bool] = Field(None, description="Валидирован ли контакт администратором")
 
-    @field_validator('phone_number')
-    @classmethod
-    def validate_phone_number(cls, v):
-        if v is None:
-            return v
+    # @field_validator('phone_number')
+    # @classmethod
+    # def validate_phone_number(cls, v):
+    #     if v is None:
+    #         return v
 
-        phone_regex = r'^[\d\s\-\+\(\)\.]+$'
-        if not re.match(phone_regex, v):
-            raise ValueError('Номер телефона содержит недопустимые символы')
+    #     phone_regex = r'^[\d\s\-\+\(\)\.]+$'
+    #     if not re.match(phone_regex, v):
+    #         raise ValueError('Номер телефона содержит недопустимые символы')
 
-        digits = re.sub(r'\D', '', v)
-        if len(digits) < 10:
-            raise ValueError('Номер телефона слишком короткий')
+    #     digits = re.sub(r'\D', '', v)
+    #     if len(digits) < 10:
+    #         raise ValueError('Номер телефона слишком короткий')
 
-        return v
+    #     return v
 
 # Полная схема контакта
 class Contact(ContactBase, TimestampSchema):
@@ -89,21 +89,21 @@ class ContactAdminUpdate(BaseSchema):
     notes: Optional[str] = None
     is_validated: Optional[bool] = None
 
-    @field_validator('phone_number')
-    @classmethod
-    def validate_phone_number(cls, v):
-        if v is None:
-            return v
+    # @field_validator('phone_number')
+    # @classmethod
+    # def validate_phone_number(cls, v):
+    #     if v is None:
+    #         return v
 
-        phone_regex = r'^[\d\s\-\+\(\)\.]+$'
-        if not re.match(phone_regex, v):
-            raise ValueError('Номер телефона содержит недопустимые символы')
+    #     phone_regex = r'^[\d\s\-\+\(\)\.]+$'
+    #     if not re.match(phone_regex, v):
+    #         raise ValueError('Номер телефона содержит недопустимые символы')
 
-        digits = re.sub(r'\D', '', v)
-        if len(digits) < 10:
-            raise ValueError('Номер телефона слишком короткий')
+    #     digits = re.sub(r'\D', '', v)
+    #     if len(digits) < 10:
+    #         raise ValueError('Номер телефона слишком короткий')
 
-        return v
+    #     return v
 
 # Облегченная схема контакта
 class ContactShort(BaseSchema):
@@ -141,32 +141,32 @@ class ContactFilter(BaseSchema):
     created_from: Optional[datetime] = None
     created_to: Optional[datetime] = None
 
-    @field_validator('phone_number')
-    @classmethod
-    def clean_phone_number(cls, v):
-        if v:
-            # Очищаем номер для поиска
-            return re.sub(r'\D', '', v)
-        return v
+    # @field_validator('phone_number')
+    # @classmethod
+    # def clean_phone_number(cls, v):
+    #     if v:
+    #         # Очищаем номер для поиска
+    #         return re.sub(r'\D', '', v)
+    #     return v
 
-    @field_validator('email')
-    @classmethod
-    def email_to_lowercase(cls, v):
-        if v:
-            return v.lower()
-        return v
+    # @field_validator('email')
+    # @classmethod
+    # def email_to_lowercase(cls, v):
+    #     if v:
+    #         return v.lower()
+    #     return v
 
 # Схема для поиска контактов
 class ContactSearch(BaseSchema):
     query: Optional[str] = Field(None, description="Поиск по всем текстовым полям")
     exhibition_id: Optional[int] = None
 
-    @field_validator('query')
-    @classmethod
-    def validate_query_length(cls, v):
-        if v and len(v.strip()) < 2:
-            raise ValueError('Поисковый запрос должен содержать минимум 2 символа')
-        return v.strip() if v else None
+    # @field_validator('query')
+    # @classmethod
+    # def validate_query_length(cls, v):
+    #     if v and len(v.strip()) < 2:
+    #         raise ValueError('Поисковый запрос должен содержать минимум 2 символа')
+    #     return v.strip() if v else None
 
 # Схема для импорта контактов
 class ContactImport(BaseSchema):
@@ -179,23 +179,23 @@ class ContactImport(BaseSchema):
     exhibition_id: Optional[int] = Field(None, description="ID выставки, если известен")
     questionnaire: Dict[str, Any] = Field(default_factory=dict)
 
-    @field_validator('phone_number')
-    @classmethod
-    def validate_phone_number(cls, v):
-        phone_regex = r'^[\d\s\-\+\(\)\.]+$'
-        if not re.match(phone_regex, v):
-            raise ValueError('Номер телефона содержит недопустимые символы')
+    # @field_validator('phone_number')
+    # @classmethod
+    # def validate_phone_number(cls, v):
+    #     phone_regex = r'^[\d\s\-\+\(\)\.]+$'
+    #     if not re.match(phone_regex, v):
+    #         raise ValueError('Номер телефона содержит недопустимые символы')
 
-        digits = re.sub(r'\D', '', v)
-        if len(digits) < 10:
-            raise ValueError('Номер телефона слишком короткий')
+    #     digits = re.sub(r'\D', '', v)
+    #     if len(digits) < 10:
+    #         raise ValueError('Номер телефона слишком короткий')
 
-        return v
+    #     return v
 
-    @field_validator('email')
-    @classmethod
-    def email_to_lowercase(cls, v):
-        return v.lower()
+    # @field_validator('email')
+    # @classmethod
+    # def email_to_lowercase(cls, v):
+    #     return v.lower()
 
 # Схема для массового создания контактов
 class ContactBatchCreate(BaseSchema):
@@ -231,19 +231,19 @@ class ContactDuplicateCheck(BaseSchema):
     phone_number: Optional[str] = None
     exhibition_id: Optional[int] = None
 
-    @field_validator('phone_number')
-    @classmethod
-    def clean_phone_for_check(cls, v):
-        if v:
-            return re.sub(r'\D', '', v)
-        return v
+    # @field_validator('phone_number')
+    # @classmethod
+    # def clean_phone_for_check(cls, v):
+    #     if v:
+    #         return re.sub(r'\D', '', v)
+    #     return v
 
-    @field_validator('email')
-    @classmethod
-    def email_to_lowercase(cls, v):
-        if v:
-            return v.lower()
-        return v
+    # @field_validator('email')
+    # @classmethod
+    # def email_to_lowercase(cls, v):
+    #     if v:
+    #         return v.lower()
+    #     return v
 
 # Схема ответа при проверке дубликатов
 class ContactDuplicateResponse(BaseSchema):
