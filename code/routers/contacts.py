@@ -225,6 +225,8 @@ async def create_contact(
 
     contact = result.scalar_one()
     contact_dict["id"] = contact.id
+    contact_dict["created_at"] = contact.created_at
+    contact_dict["updated_at"] = contact.updated_at
     return contact_dict
 
     # # Возвращаем данные вручную вместо from_orm()
