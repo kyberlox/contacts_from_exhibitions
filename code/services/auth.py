@@ -92,7 +92,7 @@ async def get_optional_user(
     Dependency для получения пользователя (опционально)
     Возвращает пользователя или None если не авторизован
     """
-        try:
+    try:
         # ваш запрос к БД
         result = await get_current_user(request, session_id, current_user_id, db)
         return result
