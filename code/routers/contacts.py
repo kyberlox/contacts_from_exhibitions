@@ -177,6 +177,7 @@ async def create_contact(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Выставка не найдена"
             )
+        contact_dict["exhibition_id"]  = exhibition.id
     else:
         contact_dict["exhibition_id"] = current_exhibition #await get_current_exhibition(db)
 
