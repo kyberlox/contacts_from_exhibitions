@@ -44,6 +44,7 @@ async def get_current_user(
         return user
 
     except Exception as e:
+        await db.rollback()  # обязательно откатываем транзакцию
         # В случае ошибки возвращаем None
         print(f"Ошибка при получении пользователя: {e}")
         return None
