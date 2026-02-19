@@ -29,8 +29,6 @@ async def get_current_user(
         current_user_id = int(current_user_id)
     print(f"session_id: {session_id}, current_user_id: {current_user_id}")
 
-
-
     try:
         
         # Ищем пользователя в БД
@@ -94,4 +92,12 @@ async def get_optional_user(
     Dependency для получения пользователя (опционально)
     Возвращает пользователя или None если не авторизован
     """
-    return await get_current_user(request, session_id, current_user_id, db)
+        try:
+        # ваш запрос к БД
+        result = await get_current_user(request, session_id, current_user_id, db)
+        return result
+    except Exception as e:
+        await db.rollback()  # обязательно откатываем транзакцию
+        # В случае ошибки возвращаем None
+        print(f"Ошибка при получении пользователя: {e}")
+        return None
