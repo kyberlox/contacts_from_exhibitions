@@ -1,5 +1,5 @@
 # dependencies/active_exhibition.py
-from fastapi import Depends, HTTPException, status, Cookie
+from fastapi import Depends
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select

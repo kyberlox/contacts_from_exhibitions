@@ -34,7 +34,7 @@ from schemas.base import PaginationParams, PaginatedResponse
 
 from services.auth import get_optional_user, require_admin, require_auth
 from models.user import User
-from services.active_exhibition import get_current_exhibition
+#from services.active_exhibition import get_current_exhibition
 
 
 
@@ -143,6 +143,24 @@ async def check_contact_duplicate(
             duplicate_fields.append('phone_number')
 
     return duplicate_fields
+
+async def get_current_exhibition(
+        db: AsyncSession = Depends(get_db)
+) -> Optional[int]:
+    """
+    Dependency для получения текущего пользователя из куки
+    """
+
+    # Строим базовый запрос
+    result = await db.execute(
+            select(Exhibition).where(Exhibition.is_active == True)
+        )
+    exhibition_active = result.scalar_one_or_none()
+
+    if exhibition_active is None:
+        return None
+
+    return exhibition_active.id
 
 @router.get("/questionnaire")
 def get_questionnaire():
