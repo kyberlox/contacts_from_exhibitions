@@ -30,6 +30,7 @@ async def get_current_user(
 
 
     try:
+        current_user_id = int(current_user_id)
         # Ищем пользователя в БД
         result = await db.execute(
             select(User).where(User.id == current_user_id)
