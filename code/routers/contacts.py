@@ -238,13 +238,14 @@ async def create_contact(
         "exhibition_id": contact.exhibition_id,
         "created_at": contact.created_at,
         "updated_at": contact.updated_at,
-        "exhibition": {
-            "id": exhibition.id,
-            "title": exhibition.title,
-            "start_date": exhibition.start_date,
-            "end_date": exhibition.end_date,
-            "preview_file_id": exhibition.preview_file_id,
-        }
+        "exhibition_id" : contact_dict["exhibition_id"]
+        # "exhibition": {
+        #     # "id": exhibition.id,
+        #     # "title": exhibition.title,
+        #     # "start_date": exhibition.start_date,
+        #     # "end_date": exhibition.end_date,
+        #     # "preview_file_id": exhibition.preview_file_id,
+        # }
     }
 
 @router.post("/batch", response_model=List[ContactWithExhibition], status_code=status.HTTP_201_CREATED)
