@@ -384,6 +384,8 @@ async def get_contact(
     )
     contact = result.scalar_one_or_none()
 
+    return contact
+
     if not contact:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
