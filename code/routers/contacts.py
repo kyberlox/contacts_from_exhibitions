@@ -391,20 +391,20 @@ async def get_contact(
         )
 
     # Загружаем связанную выставку отдельно
-    exhibition_result = await db.execute(
-        select(Exhibition).where(Exhibition.id == contact.exhibition_id)
-    )
-    exhibition = exhibition_result.scalar_one_or_none()
+    # exhibition_result = await db.execute(
+    #     select(Exhibition).where(Exhibition.id == contact.exhibition_id)
+    # )
+    # exhibition = exhibition_result.scalar_one_or_none()
 
-    exhibition_data = None
-    if exhibition:
-        exhibition_data = {
-            "id": exhibition.id,
-            "title": exhibition.title,
-            "start_date": exhibition.start_date,
-            "end_date": exhibition.end_date,
-            "preview_file_id": exhibition.preview_file_id,
-        }
+    # exhibition_data = None
+    # if exhibition:
+    #     exhibition_data = {
+    #         "id": exhibition.id,
+    #         "title": exhibition.title,
+    #         "start_date": exhibition.start_date,
+    #         "end_date": exhibition.end_date,
+    #         "preview_file_id": exhibition.preview_file_id,
+    #     }
 
     # Возвращаем данные вручную
     return {
@@ -416,10 +416,10 @@ async def get_contact(
         "email": contact.email,
         "phone_number": contact.phone_number,
         "questionnaire": contact.questionnaire,
-        "exhibition_id": contact.exhibition_id,
+        #"exhibition_id": contact.exhibition_id,
         "created_at": contact.created_at,
         "updated_at": contact.updated_at,
-        "exhibition": exhibition_data,
+        #"exhibition": exhibition_data,
     }
 
 @router.put("/{contact_id}", response_model=ContactWithExhibition, dependencies=[Depends(require_auth)])
