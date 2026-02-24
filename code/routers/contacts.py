@@ -384,16 +384,16 @@ async def get_contact(
     )
     contact = result.scalar_one_or_none()
 
-    return contact
+    # return contact
 
-    # if not contact:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_404_NOT_FOUND,
-    #         detail="Контакт не найден"
-    #     )
+    if not contact:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Контакт не найден"
+        )
     
-    # contact_dict = contact.__dict__
-    # return contact_dict
+    contact_dict = contact.__dict__
+    return contact_dict
 
     # Загружаем связанную выставку отдельно
     # exhibition_result = await db.execute(
