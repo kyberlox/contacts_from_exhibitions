@@ -1,5 +1,5 @@
 # main.py
-from fastapi import FastAPI, Response, Cookie, HTTPException, status, Depends
+from fastapi import FastAPI, Response, Cookie, HTTPException, status, Depends, File, UploadFile, Form
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -18,6 +18,15 @@ from models.user import User
 from models.database import engine, AsyncSessionLocal, create_tables, get_db
 
 from routers import exhibitions_router, contacts_router, files_router, users_router
+
+#OCR
+from PIL import Image
+import pytesseract
+import io
+import tempfile
+import subprocess
+import os
+import re
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -247,6 +256,22 @@ async def get_current_user_info(
         "last_login": user.last_login,
         "created_at": user.created_at
     }
+
+
+
+@app.post("/ocr")
+async def ocr_image(
+    file: UploadFile = File(...)
+):
+    try:
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents))
+        text = pytesseract.image_to_string(image, lang='rus+eng')
+        res_text = re.split(r'\n|\n\n|&', text)
+        result = [item for item in res_text if item != ""]
+        return result
+    except Exception as e:
+        return HTTPException(status_code=500, content={"error ocr": str(e)})
 
 
 
