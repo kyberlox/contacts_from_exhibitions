@@ -389,6 +389,9 @@ async def get_contact(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Контакт не найден"
         )
+    
+    contact_dict = contact.__dict__
+    return contact_dict
 
     # Загружаем связанную выставку отдельно
     # exhibition_result = await db.execute(
@@ -406,21 +409,21 @@ async def get_contact(
     #         "preview_file_id": exhibition.preview_file_id,
     #     }
 
-    # Возвращаем данные вручную
-    return {
-        "id": contact.id,
-        "title": contact.title,
-        "description": contact.description,
-        "full_name": contact.full_name,
-        "position": contact.position,
-        "email": contact.email,
-        "phone_number": contact.phone_number,
-        "questionnaire": contact.questionnaire,
-        #"exhibition_id": contact.exhibition_id,
-        "created_at": contact.created_at,
-        "updated_at": contact.updated_at,
-        #"exhibition": exhibition_data,
-    }
+    # # Возвращаем данные вручную
+    # return {
+    #     "id": contact.id,
+    #     "title": contact.title,
+    #     "description": contact.description,
+    #     "full_name": contact.full_name,
+    #     "position": contact.position,
+    #     "email": contact.email,
+    #     "phone_number": contact.phone_number,
+    #     "questionnaire": contact.questionnaire,
+    #     #"exhibition_id": contact.exhibition_id,
+    #     "created_at": contact.created_at,
+    #     "updated_at": contact.updated_at,
+    #     #"exhibition": exhibition_data,
+    # }
 
 @router.put("/{contact_id}", response_model=ContactWithExhibition, dependencies=[Depends(require_auth)])
 async def update_contact(
