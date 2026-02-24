@@ -373,7 +373,7 @@ async def get_contacts(
         items=items
     )
 
-@router.get("/{contact_id}", response_model=ContactWithExhibition)
+@router.get("/{contact_id}")#, response_model=ContactWithExhibition)
 async def get_contact(
         contact_id: int,
         db: AsyncSession = Depends(get_db)
