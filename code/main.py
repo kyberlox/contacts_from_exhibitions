@@ -83,7 +83,8 @@ app.include_router(exhibitions_router)
 app.include_router(files_router)
 app.include_router(users_router)
 
-@app.post("/login")
+# @app.post("/login")
+@app.get("/login")
 async def login(
         user_data: Dict[str, Any],
         response: Response,
