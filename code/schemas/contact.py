@@ -17,7 +17,7 @@ class ContactBase(BaseSchema):
     email: str = Field(..., max_length=255, description="Email контакта")
     phone_number: str = Field(..., max_length=255, description="Номер телефона")
     city: str = Field(..., max_length=255, description="Город")
-    exhibition_id: Optional[int] = Field(..., description="ID выставки")
+    #exhibition_id: Optional[int] = Field(..., description="ID выставки")
 
 # Создание контакта
 class ContactCreate(ContactBase):
