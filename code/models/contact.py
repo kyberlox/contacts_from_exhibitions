@@ -35,7 +35,8 @@ class Contact(Base):
     full_name = Column(String(255), nullable=False, index=True)
     position = Column(String(255), nullable=False, index=True)
     email = Column(String(255), nullable=False, index=True)
-    phone_number = Column(String(50), nullable=False, index=True)
+    phone_number = Column(String(255), nullable=False, index=True)
+    city = Column(String(255), nullable=True, index=True)
     questionnaire = Column(JSONB, nullable=False, default={})
     
     exhibition_id = Column(

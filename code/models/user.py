@@ -28,5 +28,6 @@ class User(Base):
         foreign_keys="Contact.validated_by_id"
     )
 
+
     def __repr__(self):
         return f"<User(id={self.id}, full_name='{self.full_name}', is_admin={self.is_admin})>"

@@ -1,5 +1,6 @@
 # main.py
 from fastapi import FastAPI, Response, Cookie, HTTPException, status, Depends, File, UploadFile, Form
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
@@ -93,11 +94,11 @@ async def login(
 
     Принимает данные в формате:
     {
-        'id': 'external_user_id',
-        'fio': {'last_name': 'Иванов', 'first_name': 'Иван', 'middle_name': 'Иванович'},
-        'department': 'Отдел продаж',
-        'position': 'Менеджер',
-        'session_id': 'session_token_123'
+        "id": "external_user_id",
+        "fio": {"last_name": "Иванов", "first_name": "Иван", "middle_name": "Иванович"},
+        "department": "Отдел продаж",
+        "position": "Менеджер",
+        "session_id": "session_token_123"
     }
     """
 
@@ -189,6 +190,11 @@ async def login(
             }
         }
 
+        # if user.is_admin:
+        #     return RedirectResponse(url="/exhibitions")
+        # elif user.is_admin is False:
+        #     return RedirectResponse(url="/exhibitions")
+
     except Exception as e:
         await db.rollback()
         raise HTTPException(
@@ -251,6 +257,8 @@ async def get_current_user_info(
         "created_at": user.created_at
     }
 
+
+
 @app.post("/ocr")
 async def ocr_image(
     file: UploadFile = File(...)
@@ -264,6 +272,8 @@ async def ocr_image(
         return result
     except Exception as e:
         return HTTPException(status_code=500, content={"error ocr": str(e)})
+
+
 
 if __name__ == "__main__":
     uvicorn.run(

@@ -12,6 +12,7 @@ import shutil
 from models.database import get_db
 from models.contact import Contact, ContactFileType, contact_file_association
 from models.file import File as FileModel
+from models.user import User
 from models.exhibition import Exhibition
 from schemas.contact import (
     ContactCreate,
@@ -31,8 +32,9 @@ from schemas.contact import (
 )
 from schemas.base import PaginationParams, PaginatedResponse
 
-from services.auth import get_optional_user, require_admin
+from services.auth import get_optional_user, require_admin, require_auth
 from models.user import User
+#from services.active_exhibition import get_current_exhibition
 
 
 
@@ -142,6 +144,24 @@ async def check_contact_duplicate(
 
     return duplicate_fields
 
+async def get_current_exhibition(
+        db: AsyncSession = Depends(get_db)
+) -> Optional[int]:
+    """
+    Dependency для получения текущего пользователя из куки
+    """
+
+    # Строим базовый запрос
+    result = await db.execute(
+            select(Exhibition).where(Exhibition.is_active == True)
+        )
+    exhibition_active = result.scalar_one_or_none()
+
+    if exhibition_active is None:
+        return None
+
+    return exhibition_active.id
+
 @router.get("/questionnaire")
 def get_questionnaire():
     with open('./schemas/pattern.json', 'r') as f:
@@ -155,23 +175,31 @@ async def create_contact(
         contact_data: ContactCreate,
         background_tasks: BackgroundTasks,
         current_user: Optional[User] = Depends(get_optional_user),
-        db: AsyncSession = Depends(get_db)
+        db: AsyncSession = Depends(get_db),
+        current_exhibition = Depends(get_current_exhibition)
 ):
     """Создание нового контакта"""
-    # Проверяем существование выставки
-    exhibition_result = await db.execute(
-        select(Exhibition).where(Exhibition.id == contact_data.exhibition_id)
-    )
-    exhibition = exhibition_result.scalar_one_or_none()
-
-    if not exhibition:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Выставка не найдена"
-        )
 
     # Подготавливаем данные
     contact_dict = contact_data.dict(exclude_none=True)
+
+    if "exhibition_id" in contact_dict and contact_dict["exhibition_id"] is not None:
+        # Проверяем существование выставки
+        exhibition_result = await db.execute(
+            select(Exhibition).where(Exhibition.id == contact_dict["exhibition_id"])
+        )
+        exhibition = exhibition_result.scalar_one_or_none()
+
+        if not exhibition:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Выставка не найдена"
+            )
+        contact_dict["exhibition_id"]  = exhibition.id
+    else:
+        contact_dict["exhibition_id"] = current_exhibition #await get_current_exhibition(db)
+
+    
 
     # Приводим email к нижнему регистру
     if 'email' in contact_dict and contact_dict['email']:
@@ -180,6 +208,7 @@ async def create_contact(
     # Добавляем автора, если пользователь авторизован
     if current_user:
         contact_dict['author_id'] = current_user.id
+        print('author_id', current_user.id)
 
     # Создаем контакт
     db_contact = Contact(**contact_dict)
@@ -195,8 +224,12 @@ async def create_contact(
     )
 
     contact = result.scalar_one()
-    return contact
-    # Возвращаем данные вручную вместо from_orm()
+    contact_dict["id"] = contact.id
+    contact_dict["created_at"] = contact.created_at
+    contact_dict["updated_at"] = contact.updated_at
+    return contact_dict
+
+    # # Возвращаем данные вручную вместо from_orm()
     # return {
     #     "id": contact.id,
     #     "title": contact.title,
@@ -209,13 +242,14 @@ async def create_contact(
     #     "exhibition_id": contact.exhibition_id,
     #     "created_at": contact.created_at,
     #     "updated_at": contact.updated_at,
-    #     "exhibition": {
-    #         "id": exhibition.id,
-    #         "title": exhibition.title,
-    #         "start_date": exhibition.start_date,
-    #         "end_date": exhibition.end_date,
-    #         "preview_file_id": exhibition.preview_file_id,
-    #     }
+    #     "exhibition_id" : contact_dict["exhibition_id"]
+    #     # "exhibition": {
+    #     #     # "id": exhibition.id,
+    #     #     # "title": exhibition.title,
+    #     #     # "start_date": exhibition.start_date,
+    #     #     # "end_date": exhibition.end_date,
+    #     #     # "preview_file_id": exhibition.preview_file_id,
+    #     # }
     # }
 
 @router.post("/batch", response_model=List[ContactWithExhibition], status_code=status.HTTP_201_CREATED)
@@ -267,18 +301,24 @@ async def create_contacts_batch(
 
     return created_contacts
 
-@router.get("/", response_model=PaginatedResponse)
+@router.get("/", response_model=PaginatedResponse, dependencies=[Depends(require_auth)])
 async def get_contacts(
         pagination: PaginationParams = Depends(),
         exhibition_id: Optional[int] = Query(None, description="Фильтр по выставке"),
         search: Optional[str] = Query(None, description="Поиск по текстовым полям"),
         date_from: Optional[date] = Query(None, description="Дата создания от"),
         date_to: Optional[date] = Query(None, description="Дата создания до"),
-        db: AsyncSession = Depends(get_db)
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_optional_user)
 ):
     """Получение списка контактов с пагинацией и фильтрацией"""
     # Строим базовый запрос
     query = select(Contact)
+
+    if not current_user.is_admin:
+        if not current_user.id:
+            raise HTTPException(status_code=403, detail="Доступ запрещён")
+        query = query.where(Contact.author_id == current_user.id)
 
     # Применяем фильтры
     if exhibition_id:
@@ -333,7 +373,7 @@ async def get_contacts(
         items=items
     )
 
-@router.get("/{contact_id}", response_model=ContactWithExhibition)
+@router.get("/{contact_id}")#, response_model=ContactWithExhibition)
 async def get_contact(
         contact_id: int,
         db: AsyncSession = Depends(get_db)
@@ -344,49 +384,55 @@ async def get_contact(
     )
     contact = result.scalar_one_or_none()
 
+    # return contact
+
     if not contact:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Контакт не найден"
         )
+    
+    contact_dict = contact.__dict__
+    return contact_dict
 
     # Загружаем связанную выставку отдельно
-    exhibition_result = await db.execute(
-        select(Exhibition).where(Exhibition.id == contact.exhibition_id)
-    )
-    exhibition = exhibition_result.scalar_one_or_none()
+    # exhibition_result = await db.execute(
+    #     select(Exhibition).where(Exhibition.id == contact.exhibition_id)
+    # )
+    # exhibition = exhibition_result.scalar_one_or_none()
 
-    exhibition_data = None
-    if exhibition:
-        exhibition_data = {
-            "id": exhibition.id,
-            "title": exhibition.title,
-            "start_date": exhibition.start_date,
-            "end_date": exhibition.end_date,
-            "preview_file_id": exhibition.preview_file_id,
-        }
+    # exhibition_data = None
+    # if exhibition:
+    #     exhibition_data = {
+    #         "id": exhibition.id,
+    #         "title": exhibition.title,
+    #         "start_date": exhibition.start_date,
+    #         "end_date": exhibition.end_date,
+    #         "preview_file_id": exhibition.preview_file_id,
+    #     }
 
-    # Возвращаем данные вручную
-    return {
-        "id": contact.id,
-        "title": contact.title,
-        "description": contact.description,
-        "full_name": contact.full_name,
-        "position": contact.position,
-        "email": contact.email,
-        "phone_number": contact.phone_number,
-        "questionnaire": contact.questionnaire,
-        "exhibition_id": contact.exhibition_id,
-        "created_at": contact.created_at,
-        "updated_at": contact.updated_at,
-        "exhibition": exhibition_data,
-    }
+    # # Возвращаем данные вручную
+    # return {
+    #     "id": contact.id,
+    #     "title": contact.title,
+    #     "description": contact.description,
+    #     "full_name": contact.full_name,
+    #     "position": contact.position,
+    #     "email": contact.email,
+    #     "phone_number": contact.phone_number,
+    #     "questionnaire": contact.questionnaire,
+    #     #"exhibition_id": contact.exhibition_id,
+    #     "created_at": contact.created_at,
+    #     "updated_at": contact.updated_at,
+    #     #"exhibition": exhibition_data,
+    # }
 
-@router.put("/{contact_id}", response_model=ContactWithExhibition)
+@router.put("/{contact_id}", response_model=ContactWithExhibition, dependencies=[Depends(require_auth)])
 async def update_contact(
         contact_id: int,
         contact_data: ContactUpdate,
-        db: AsyncSession = Depends(get_db)
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_optional_user)
 ):
     """Обновление контакта"""
     result = await db.execute(
@@ -399,6 +445,13 @@ async def update_contact(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Контакт не найден"
         )
+
+    if current_user.id != contact.author_id:
+        if not current_user.is_admin:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="У вас нет прав на редактирование этого контакта"
+            )
 
     # Проверяем на дубликаты (исключая текущий контакт)
     update_dict = contact_data.dict(exclude_unset=True)
