@@ -197,6 +197,7 @@ async def create_contact(
             )
         contact_dict["exhibition_id"]  = exhibition.id
     else:
+        print("tyt")
         contact_dict["exhibition_id"] = current_exhibition #await get_current_exhibition(db)
 
     
