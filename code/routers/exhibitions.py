@@ -1,5 +1,6 @@
 # routers/exhibitions.py
 from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc, asc, or_, func
 from typing import List, Optional
@@ -310,33 +311,66 @@ async def get_exhibition_stats(
 ):
     """Получение статистики по выставке"""
     from sqlalchemy import func
-
-    # Проверяем существование выставки
-    result = await db.execute(
-        select(Exhibition).where(Exhibition.id == exhibition_id)
-    )
-    exhibition = result.scalar_one_or_none()
-
-    if not exhibition:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Выставка не найдена"
+    from openpyxl import Workbook
+    import io
+    import requests
+    import json
+    try:
+        # Проверяем существование выставки
+        result = await db.execute(
+            select(Exhibition).where(Exhibition.id == exhibition_id)
         )
+        exhibition = result.scalar_one_or_none()
 
-    # Получаем количество контактов
-    from models.contact import Contact
-    contacts_count = await db.execute(
-        select(func.count()).where(Contact.exhibition_id == exhibition_id)
-    )
+        if not exhibition:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Выставка не найдена"
+            )
 
-    # Получаем статистику по типам контактов
-    # TODO: Добавить более сложную статистику
+        # Получаем количество контактов
+        from models.contact import Contact
+        stmt_contacts = await db.execute(
+            select(Contact).where(Contact.exhibition_id == exhibition_id)
+        )
+        exhibition_contacts = stmt_contacts.scalars().all()
 
-    return {
-        "exhibition_id": exhibition_id,
-        "exhibition_title": exhibition.title,
-        "total_contacts": contacts_count.scalar() or 0,
-        "start_date": exhibition.start_date,
-        "end_date": exhibition.end_date,
-        "is_active": exhibition.start_date <= date.today() <= exhibition.end_date
-    }
+        if not exhibition_contacts:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Контакты по выставке {exhibition.title!r} не найдены"
+            )
+        # Получаем статистику по типам контактов
+        wb = Workbook()
+        ws = wb.active
+        ws.title = f"Статистика по выставке {exhibition.title!r}"
+        # Запись данных
+        ws['A1'] = 'Город'
+        ws['B1'] = 'ФИО'
+        ws['C1'] = 'Должность'
+        ws['D1'] = 'Телефон'
+        ws['E1'] = 'Почта'
+        ws['F1'] = 'Дата и место пересечения'
+
+        for i, contact in enumerate(exhibition_contacts, start=2):
+            ws[f'A{i}'] = contact.city if contact.city else 'Не указан'
+            ws[f'B{i}'] = contact.full_name if contact.full_name else 'Не указан'
+            ws[f'C{i}'] = contact.position if contact.position else 'Не указана'
+            ws[f'D{i}'] = contact.phone_number if contact.phone_number else 'Не указан'
+            ws[f'E{i}'] = contact.email if contact.email else 'Не указан'
+            ws[f'F{i}'] = f"{exhibition.start_date} {start_date!r}"
+
+        excel_buffer = io.BytesIO()
+        wb.save(excel_buffer)
+        excel_buffer.seek(0)
+
+        return StreamingResponse(excel_buffer,
+                        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        headers={"Content-Disposition": "attachment; filename=statistics_intranet.xlsx"})
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
