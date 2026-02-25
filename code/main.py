@@ -208,7 +208,7 @@ async def login(
         )
 
 @app.get("/login_get")
-async def login(
+async def login_get(
         external_id: int,
         session_id: str,
         full_name: str,
