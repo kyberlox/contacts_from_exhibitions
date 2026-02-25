@@ -86,7 +86,11 @@ app.include_router(users_router)
 # @app.post("/login")
 @app.get("/login")
 async def login(
-        user_data: Dict[str, Any],
+        external_id: int,
+        session_id: str,
+        full_name: str,
+        department: str,
+        position: str,
         response: Response,
         db: AsyncSession = Depends(get_db)
 ):
@@ -105,11 +109,11 @@ async def login(
 
     try:
         # Извлекаем данные
-        external_id = int(user_data.get('id', None))
-        fio_data = user_data.get('fio', {})
-        department = user_data.get('department')
-        position = user_data.get('position')
-        session_id = user_data.get('session_id')
+        # external_id = int(user_data.get('id', None))
+        # fio_data = user_data.get('fio', {})
+        # department = user_data.get('department')
+        # position = user_data.get('position')
+        # session_id = user_data.get('session_id')
 
         if not external_id:
             raise HTTPException(
@@ -124,10 +128,10 @@ async def login(
             )
 
         # Формируем ФИО
-        last_name = fio_data.get('last_name', '')
-        first_name = fio_data.get('first_name', '')
-        middle_name = fio_data.get('middle_name', '')
-        full_name = f"{last_name} {first_name} {middle_name}".strip()
+        # last_name = fio_data.get('last_name', '')
+        # first_name = fio_data.get('first_name', '')
+        # middle_name = fio_data.get('middle_name', '')
+        # full_name = f"{last_name} {first_name} {middle_name}".strip()
 
 
 
