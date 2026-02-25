@@ -16,6 +16,7 @@ class ContactBase(BaseSchema):
     #email: EmailStr = Field(..., max_length=255, description="Email контакта")
     email: str = Field(..., max_length=255, description="Email контакта")
     phone_number: str = Field(..., max_length=50, description="Номер телефона")
+    city: str = Field(..., max_length=50, description="Город")
     #exhibition_id: Optional[int] = Field(..., description="ID выставки")
 
 # Создание контакта
@@ -43,6 +44,7 @@ class ContactUpdate(BaseSchema):
     position: Optional[str] = Field(None, max_length=255)
     email: Optional[EmailStr] = Field(None, max_length=255)
     phone_number: Optional[str] = Field(None, max_length=50)
+    city: Optional[str] = Field(None, max_length=255)
     questionnaire: Optional[Dict[str, Any]] = None
     notes: Optional[str] = Field(None, description="Заметки администратора")
     is_validated: Optional[bool] = Field(None, description="Валидирован ли контакт администратором")
@@ -85,6 +87,7 @@ class ContactAdminUpdate(BaseSchema):
     position: Optional[str] = Field(None, max_length=255)
     email: Optional[EmailStr] = Field(None, max_length=255)
     phone_number: Optional[str] = Field(None, max_length=50)
+    city: Optional[str] = Field(None, max_length=255)
     questionnaire: Optional[Dict[str, Any]] = None
     exhibition_id: Optional[int] = None
     notes: Optional[str] = None
@@ -114,6 +117,7 @@ class ContactShort(BaseSchema):
     position: str
     email: str
     phone_number: str
+    city: str
     created_at: datetime
 
 # Схема контакта для списка
@@ -124,6 +128,7 @@ class ContactList(BaseSchema):
     position: str
     email: str
     phone_number: str
+    city: str
     exhibition_title: Optional[str] = None
     created_at: datetime
 
@@ -138,6 +143,7 @@ class ContactFilter(BaseSchema):
     position: Optional[str] = None
     email: Optional[str] = None
     phone_number: Optional[str] = None
+    city: Optional[str] = None
     exhibition_id: Optional[int] = None
     created_from: Optional[datetime] = None
     created_to: Optional[datetime] = None
@@ -176,6 +182,7 @@ class ContactImport(BaseSchema):
     position: str
     email: EmailStr
     phone_number: str
+    city: str
     description: Optional[str] = None
     exhibition_id: Optional[int] = Field(None, description="ID выставки, если известен")
     questionnaire: Dict[str, Any] = Field(default_factory=dict)
@@ -212,6 +219,7 @@ class ContactExport(BaseSchema):
     position: str
     email: str
     phone_number: str
+    city: str
     exhibition_title: Optional[str]
     exhibition_start_date: Optional[datetime]
     exhibition_end_date: Optional[datetime]
