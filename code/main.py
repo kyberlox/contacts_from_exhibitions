@@ -161,9 +161,9 @@ async def login(
         await db.commit()
         await db.refresh(user)
 
-        redirect_url = f"http://exhibitions.kyberlox.ru/users/me"
+        # redirect_url = f"http://exhibitions.kyberlox.ru/users/me"
         #  # Создаем RedirectResponse
-        response = RedirectResponse(url=redirect_url)
+        # response = RedirectResponse(url=redirect_url)
 
         # Устанавливаем куки
         response.set_cookie(
@@ -184,17 +184,17 @@ async def login(
             max_age=30 * 24 * 60 * 60
         )
 
-        # return {
-        #     "message": "Успешная авторизация",
-        #     "user": {
-        #         "id": user.id,
-        #         "full_name": user.full_name,
-        #         "department": user.department,
-        #         "position": user.position,
-        #         "is_admin": user.is_admin
-        #     }
-        # }
-        return response
+        return {
+            "message": "Успешная авторизация",
+            "user": {
+                "id": user.id,
+                "full_name": user.full_name,
+                "department": user.department,
+                "position": user.position,
+                "is_admin": user.is_admin
+            }
+        }
+        # return response
         # if user.is_admin:
         #     return RedirectResponse(url="/exhibitions")
         # elif user.is_admin is False:
