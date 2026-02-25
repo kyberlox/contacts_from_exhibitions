@@ -5,5 +5,5 @@
 /code/uploads/
 /postgresql/
 
-*/__pycache__/*
+**/__pycache__/**
 **.sh

@@ -38,6 +38,7 @@ class Contact(Base):
     phone_number = Column(String(255), nullable=False, index=True)
     city = Column(String(255), nullable=True, index=True)
     questionnaire = Column(JSONB, nullable=False, default={})
+    
     exhibition_id = Column(
         Integer,
         ForeignKey("exhibitions.id", ondelete="CASCADE"),

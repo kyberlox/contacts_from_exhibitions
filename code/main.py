@@ -101,7 +101,7 @@ async def login(
         "session_id": "session_token_123"
     }
     """
-    
+
     try:
         # Извлекаем данные
         external_id = int(user_data.get('id', None))
@@ -128,7 +128,7 @@ async def login(
         middle_name = fio_data.get('middle_name', '')
         full_name = f"{last_name} {first_name} {middle_name}".strip()
 
-        
+
 
         if not full_name:
             full_name = "Неизвестный пользователь"
@@ -160,6 +160,10 @@ async def login(
         await db.commit()
         await db.refresh(user)
 
+        redirect_url = f"http://exhibitions.kyberlox.ru/users/me"
+        #  # Создаем RedirectResponse
+        response = RedirectResponse(url=redirect_url)
+
         # Устанавливаем куки
         response.set_cookie(
             key="session_id",
@@ -179,17 +183,17 @@ async def login(
             max_age=30 * 24 * 60 * 60
         )
 
-        return {
-            "message": "Успешная авторизация",
-            "user": {
-                "id": user.id,
-                "full_name": user.full_name,
-                "department": user.department,
-                "position": user.position,
-                "is_admin": user.is_admin
-            }
-        }
-
+        # return {
+        #     "message": "Успешная авторизация",
+        #     "user": {
+        #         "id": user.id,
+        #         "full_name": user.full_name,
+        #         "department": user.department,
+        #         "position": user.position,
+        #         "is_admin": user.is_admin
+        #     }
+        # }
+        return response
         # if user.is_admin:
         #     return RedirectResponse(url="/exhibitions")
         # elif user.is_admin is False:
