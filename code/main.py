@@ -83,8 +83,131 @@ app.include_router(exhibitions_router)
 app.include_router(files_router)
 app.include_router(users_router)
 
-# @app.post("/login")
-@app.get("/login")
+
+@app.post("/login")
+async def login(
+        user_data: Dict[str, Any],
+        response: Response,
+        db: AsyncSession = Depends(get_db)
+):
+    """
+    Авторизация пользователя из внешней системы
+
+    Принимает данные в формате:
+    {
+        "id": "external_user_id",
+        "fio": {"last_name": "Иванов", "first_name": "Иван", "middle_name": "Иванович"},
+        "department": "Отдел продаж",
+        "position": "Менеджер",
+        "session_id": "session_token_123"
+    }
+    """
+
+    try:
+        # Извлекаем данные
+        external_id = int(user_data.get('id', None))
+        fio_data = user_data.get('fio', {})
+        department = user_data.get('department')
+        position = user_data.get('position')
+        session_id = user_data.get('session_id')
+
+        if not external_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Не указан ID пользователя"
+            )
+
+        if not session_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Не указан session_id"
+            )
+
+        # Формируем ФИО
+        last_name = fio_data.get('last_name', '')
+        first_name = fio_data.get('first_name', '')
+        middle_name = fio_data.get('middle_name', '')
+        full_name = f"{last_name} {first_name} {middle_name}".strip()
+
+
+
+        if not full_name:
+            full_name = "Неизвестный пользователь"
+
+        # Ищем пользователя в нашей БД по external_id
+        result = await db.execute(
+            select(User).where(User.id == external_id)
+        )
+        user = result.scalar_one_or_none()
+        print(user)
+        if user is not None:
+            # Обновляем существующего пользователя
+            user.full_name = full_name
+            user.department = department
+            user.position = position
+            user.last_login = func.now()
+        else:
+            # Создаем нового пользователя
+            user = User(
+                id=external_id,
+                full_name=full_name,
+                department=department,
+                position=position,
+                is_admin=False,  # По умолчанию не админ
+                last_login=func.now()
+            )
+            db.add(user)
+
+        await db.commit()
+        await db.refresh(user)
+
+        redirect_url = f"http://exhibitions.kyberlox.ru/users/me"
+        #  # Создаем RedirectResponse
+        response = RedirectResponse(url=redirect_url)
+
+        # Устанавливаем куки
+        response.set_cookie(
+            key="session_id",
+            value=session_id,
+            httponly=True,
+            secure=False,  # В продакшене установите True
+            samesite="lax",
+            max_age=30 * 24 * 60 * 60  # 30 дней
+        )
+
+        response.set_cookie(
+            key="user_id",
+            value=str(external_id),
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            max_age=30 * 24 * 60 * 60
+        )
+
+        # return {
+        #     "message": "Успешная авторизация",
+        #     "user": {
+        #         "id": user.id,
+        #         "full_name": user.full_name,
+        #         "department": user.department,
+        #         "position": user.position,
+        #         "is_admin": user.is_admin
+        #     }
+        # }
+        return response
+        # if user.is_admin:
+        #     return RedirectResponse(url="/exhibitions")
+        # elif user.is_admin is False:
+        #     return RedirectResponse(url="/exhibitions")
+
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Ошибка при авторизации: {str(e)}"
+        )
+
+@app.get("/login_get")
 async def login(
         external_id: int,
         session_id: str,
@@ -210,6 +333,7 @@ async def login(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Ошибка при авторизации: {str(e)}"
         )
+
 
 @app.post("/logout")
 async def logout(response: Response):
