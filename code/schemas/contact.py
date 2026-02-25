@@ -15,8 +15,8 @@ class ContactBase(BaseSchema):
     position: str = Field(..., max_length=255, description="Должность контакта")
     #email: EmailStr = Field(..., max_length=255, description="Email контакта")
     email: str = Field(..., max_length=255, description="Email контакта")
-    phone_number: str = Field(..., max_length=50, description="Номер телефона")
-    city: str = Field(..., max_length=50, description="Город")
+    phone_number: str = Field(..., max_length=255, description="Номер телефона")
+    city: str = Field(..., max_length=255, description="Город")
     #exhibition_id: Optional[int] = Field(..., description="ID выставки")
 
 # Создание контакта
@@ -43,7 +43,7 @@ class ContactUpdate(BaseSchema):
     full_name: Optional[str] = Field(None, max_length=255)
     position: Optional[str] = Field(None, max_length=255)
     email: Optional[EmailStr] = Field(None, max_length=255)
-    phone_number: Optional[str] = Field(None, max_length=50)
+    phone_number: Optional[str] = Field(None, max_length=255)
     city: Optional[str] = Field(None, max_length=255)
     questionnaire: Optional[Dict[str, Any]] = None
     notes: Optional[str] = Field(None, description="Заметки администратора")
@@ -86,10 +86,10 @@ class ContactAdminUpdate(BaseSchema):
     full_name: Optional[str] = Field(None, max_length=255)
     position: Optional[str] = Field(None, max_length=255)
     email: Optional[EmailStr] = Field(None, max_length=255)
-    phone_number: Optional[str] = Field(None, max_length=50)
+    phone_number: Optional[str] = Field(None, max_length=255)
     city: Optional[str] = Field(None, max_length=255)
     questionnaire: Optional[Dict[str, Any]] = None
-    exhibition_id: Optional[int] = None
+    #exhibition_id: Optional[int] = None
     notes: Optional[str] = None
     is_validated: Optional[bool] = None
 
@@ -144,7 +144,7 @@ class ContactFilter(BaseSchema):
     email: Optional[str] = None
     phone_number: Optional[str] = None
     city: Optional[str] = None
-    exhibition_id: Optional[int] = None
+    #exhibition_id: Optional[int] = None
     created_from: Optional[datetime] = None
     created_to: Optional[datetime] = None
 
@@ -207,7 +207,7 @@ class ContactImport(BaseSchema):
 
 # Схема для массового создания контактов
 class ContactBatchCreate(BaseSchema):
-    exhibition_id: int
+    #exhibition_id: int
     contacts: List[ContactImport]
 
 # Схема для экспорта контактов
