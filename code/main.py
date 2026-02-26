@@ -207,7 +207,7 @@ async def login(
             detail=f"Ошибка при авторизации: {str(e)}"
         )
 
-@app.get("/login_get")
+@app.get("/api/login_get")
 async def login_get(
         external_id: int,
         session_id: str,
