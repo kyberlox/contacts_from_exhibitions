@@ -366,24 +366,15 @@ async def get_exhibition_stats(
         
         wb = load_workbook('./statistic_pattern.xlsx')
 
-        # Получаем статистику по типам контактов
-        # wb = Workbook() 
         ws = wb.active
         ws.title = f"Статистика по выставке"
-        # Запись данных
-        # ws['A1'] = 'Город'
-        # ws['B1'] = 'ФИО'
-        # ws['C1'] = 'Должность'
-        # ws['D1'] = 'Телефон'
-        # ws['E1'] = 'Почта'
-        # ws['F1'] = 'Дата и место пересечения'
+        
         tnr_font = Font(name='Times New Roman', size=12)
         for i, contact in enumerate(exhibition_contacts, start=2):
             cell = ws[f'A{i}']
             cell.value = contact.city if contact.city else 'Не указан'
             cell.font = tnr_font
 
-            # ws[f'A{i}'] = contact.city if contact.city else 'Не указан'
             cell = ws[f'B{i}']
             cell.value = contact.full_name if contact.full_name else 'Не указан'
             cell.font = tnr_font
@@ -402,15 +393,7 @@ async def get_exhibition_stats(
 
             cell = ws[f'F{i}']
             cell.value = f"{exhibition.start_date} {exhibition.title}"
-            cell.font = tnr_font
-
-            # ws[f'B{i}'] = contact.full_name if contact.full_name else 'Не указан'
-            # ws[f'C{i}'] = contact.position if contact.position else 'Не указана'
-            # ws[f'D{i}'] = str(contact.phone_number) if contact.phone_number else 'Не указан'
-            # ws[f'E{i}'] = contact.email if contact.email else 'Не указан'
-            # ws[f'F{i}'] = f"{exhibition.start_date} {exhibition.title}"
-
-        
+            cell.font = tnr_font        
 
         excel_buffer = io.BytesIO()
         wb.save(excel_buffer)
