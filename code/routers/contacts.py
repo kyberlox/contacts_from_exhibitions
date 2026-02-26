@@ -182,8 +182,9 @@ async def create_contact(
 
     # Подготавливаем данные
     contact_dict = contact_data.dict(exclude_none=True)
-    
+    print("kjdvgksjrng")
     if "exhibition_id" in contact_dict and contact_dict["exhibition_id"] is not None:
+        print("kjsnvfksjnvkjsn")
         # Проверяем существование выставки
         exhibition_result = await db.execute(
             select(Exhibition).where(Exhibition.id == contact_dict["exhibition_id"])
@@ -198,6 +199,7 @@ async def create_contact(
         contact_dict["exhibition_id"]  = exhibition.id
     else:
         contact_dict["exhibition_id"] = current_exhibition #await get_current_exhibition(db)
+        print("hgdcjkhshgcjkhsgcj")
 
     
 
