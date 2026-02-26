@@ -20,7 +20,7 @@ from models.database import engine, AsyncSessionLocal, create_tables, get_db
 from routers import exhibitions_router, contacts_router, files_router, users_router
 
 #OCR
-from PIL import Image
+from PIL import Image, ImageFilter, ImageEnhance
 import pytesseract
 import io
 import tempfile
@@ -402,8 +402,16 @@ async def ocr_image(
     try:
         contents = await file.read()
         image = Image.open(io.BytesIO(contents))
+
         bw_img = image.convert('L')
-        text = pytesseract.image_to_string(bw_img, lang='rus+eng')
+
+        min_noise = bw_img.filter(ImageFilter.MedianFilter())
+
+        enhancer = ImageEnhance.Contrast(min_noise)
+
+        min_contrast = enhancer.enhance(2)
+
+        text = pytesseract.image_to_string(min_contrast, lang='rus+eng')
         res_text = re.split(r'\n|\n\n|&', text)
         result = [item for item in res_text if item != ""]
         return result
