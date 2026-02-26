@@ -78,13 +78,13 @@ app.add_middleware(
 # Подключаем статические файлы
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-app.include_router(contacts_router)
-app.include_router(exhibitions_router)
-app.include_router(files_router)
-app.include_router(users_router)
+app.include_router(contacts_router, prefix="/api"))
+app.include_router(exhibitions_router, prefix="/api"))
+app.include_router(files_router, prefix="/api"))
+app.include_router(users_router, prefix="/api"))
 
 
-@app.post("/login")
+@app.post("/api/login")
 async def login(
         user_data: Dict[str, Any],
         response: Response,
@@ -335,7 +335,7 @@ async def login_get(
         )
 
 
-@app.post("/logout")
+@app.post("/api/logout")
 async def logout(response: Response):
     """
     Выход из системы (очистка куки)
@@ -345,7 +345,7 @@ async def logout(response: Response):
 
     return {"message": "Успешный выход из системы"}
 
-@app.get("/me")
+@app.get("/api/me")
 async def get_current_user_info(
         session_id: Optional[str] = Cookie(None, alias="session_id"),
         user_id: Optional[int] = Cookie(None, alias="user_id"),
@@ -392,7 +392,7 @@ async def get_current_user_info(
 
 
 
-@app.post("/ocr")
+@app.post("/api/ocr")
 async def ocr_image(
     file: UploadFile = File(...)
 ):
