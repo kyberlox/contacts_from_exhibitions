@@ -388,7 +388,7 @@ async def get_exhibition_stats(
 
         return StreamingResponse(excel_buffer,
                         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        headers={"Content-Disposition": "attachment; filename=statistics_intranet.xlsx"})
+                        headers={"Content-Disposition": "attachment; filename=statistics_exhibition.xlsx"})
     except HTTPException:
         raise
     except Exception as e:
