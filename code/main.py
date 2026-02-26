@@ -402,7 +402,7 @@ async def ocr_image(
     try:
         contents = await file.read()
         image = Image.open(io.BytesIO(contents))
-        bw_img = image.Convert('L')
+        bw_img = image.convert('L')
         text = pytesseract.image_to_string(bw_img, lang='rus+eng')
         res_text = re.split(r'\n|\n\n|&', text)
         result = [item for item in res_text if item != ""]
