@@ -380,28 +380,28 @@ async def get_exhibition_stats(
         tnr_font = Font(name='Times New Roman', size=12)
         for i, contact in enumerate(exhibition_contacts, start=2):
             cell = ws[f'A{i}']
-            cell.value = clean_text(contact.city) if contact.city else clean_text('Не указан')
+            cell.value = contact.city if contact.city else 'Не указан'
             cell.font = tnr_font
 
             # ws[f'A{i}'] = contact.city if contact.city else 'Не указан'
             cell = ws[f'B{i}']
-            cell.value = clean_text(contact.full_name) if contact.full_name else clean_text('Не указан')
+            cell.value = contact.full_name if contact.full_name else 'Не указан'
             cell.font = tnr_font
 
             cell = ws[f'C{i}']
-            cell.value = clean_text(contact.position) if contact.position else clean_text('Не указан')
+            cell.value = contact.position if contact.position else 'Не указана'
             cell.font = tnr_font
 
             cell = ws[f'D{i}']
-            cell.value = clean_text(contact.phone_number) if contact.phone_number else clean_text('Не указан')
+            cell.value = str(contact.phone_number) if contact.phone_number else 'Не указан'
             cell.font = tnr_font
 
             cell = ws[f'E{i}']
-            cell.value = clean_text(contact.email) if contact.email else clean_text('Не указан')
+            cell.value = contact.email if contact.email else 'Не указан'
             cell.font = tnr_font
 
             cell = ws[f'F{i}']
-            cell.value = clean_text(contact.start_date) if contact.start_date else clean_text('Не указан')
+            cell.value = f"{exhibition.start_date} {exhibition.title}"
             cell.font = tnr_font
 
             # ws[f'B{i}'] = contact.full_name if contact.full_name else 'Не указан'
