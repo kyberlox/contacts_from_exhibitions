@@ -407,11 +407,12 @@ async def ocr_image(
 
         min_noise = bw_img.filter(ImageFilter.MedianFilter())
 
-        enhancer = ImageEnhance.Contrast(min_noise)
+        # enhancer = ImageEnhance.Contrast(min_noise)
 
-        min_contrast = enhancer.enhance(2)
-
-        text = pytesseract.image_to_string(min_contrast, lang='rus+eng')
+        # min_contrast = enhancer.enhance(2)
+        res_img = min_noise
+        
+        text = pytesseract.image_to_string(res_img, lang='rus+eng')
         res_text = re.split(r'\n|\n\n|&', text)
         result = [item for item in res_text if item != ""]
         return result
