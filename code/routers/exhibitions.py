@@ -333,7 +333,7 @@ async def get_exhibition_stats(
 ):
     """Получение статистики по выставке"""
     from sqlalchemy import func
-    from openpyxl import Workbook
+    from openpyxl import Workbook, load_workbook
     import io
     import requests
     import json
@@ -362,17 +362,20 @@ async def get_exhibition_stats(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Контакты по выставке {exhibition.title!r} не найдены"
             )
+        
+        wb = load_workbook('./code/statistics_pattern.xlsx')
+
         # Получаем статистику по типам контактов
-        wb = Workbook()
+        # wb = Workbook() 
         ws = wb.active
         ws.title = f"Статистика по выставке {exhibition.title!r}"
         # Запись данных
-        ws['A1'] = 'Город'
-        ws['B1'] = 'ФИО'
-        ws['C1'] = 'Должность'
-        ws['D1'] = 'Телефон'
-        ws['E1'] = 'Почта'
-        ws['F1'] = 'Дата и место пересечения'
+        # ws['A1'] = 'Город'
+        # ws['B1'] = 'ФИО'
+        # ws['C1'] = 'Должность'
+        # ws['D1'] = 'Телефон'
+        # ws['E1'] = 'Почта'
+        # ws['F1'] = 'Дата и место пересечения'
 
         for i, contact in enumerate(exhibition_contacts, start=2):
             ws[f'A{i}'] = contact.city if contact.city else 'Не указан'
