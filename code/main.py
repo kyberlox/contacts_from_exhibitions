@@ -395,39 +395,35 @@ async def get_current_user_info(
 
 
 
-# @app.post("/api/ocr")
-# async def ocr_image(
-#     file: UploadFile = File(...)
-# ):
-#     import io
-#     import numpy as np
-#     import cv2
-#     from PIL import Image, ImageEnhance, ImageFilter
-#     import pytesseract
-#     try:
-#         contents = await file.read()
-#         image = Image.open(io.BytesIO(contents))
-
-#         bw_img = image.convert('L')
-
-#         # edges = bw_img.filter(ImageFilter.FIND_EDGES)
-
-#         min_noise = bw_img.filter(ImageFilter.MedianFilter())
-
-#         enhancer = ImageEnhance.Contrast(min_noise)
-#         # bw_img = min_noise.convert('L')
-
-#         min_contrast = enhancer.enhance(2)
-
-#         res_img = min_contrast
-
-#         text = pytesseract.image_to_string(res_img, lang='rus+eng')
-#         res_text = re.split(r'\n|\n\n|&', text)
-#         result = [item for item in res_text if item != ""]
-#         return result
-#     except Exception as e:
-#         return HTTPException(status_code=500, detail={"error ocr": str(e)})
 @app.post("/api/ocr")
+async def ocr_image(
+    file: UploadFile = File(...)
+):
+    try:
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents))
+
+        bw_img = image.convert('L')
+
+        # edges = bw_img.filter(ImageFilter.FIND_EDGES)
+
+        # min_noise = bw_img.filter(ImageFilter.MedianFilter())
+
+        # enhancer = ImageEnhance.Contrast(min_noise)
+        # # bw_img = min_noise.convert('L')
+
+        # min_contrast = enhancer.enhance(2)
+
+        res_img = bw_img
+
+        text = pytesseract.image_to_string(res_img, lang='rus+eng')
+        res_text = re.split(r'\n|\n\n|&', text)
+        result = [item for item in res_text if item != ""]
+        return result
+    except Exception as e:
+        return HTTPException(status_code=500, detail={"error ocr": str(e)})
+
+@app.post("/api/ocr_new")
 async def ocr_image(
     file: UploadFile = File(...)
 ):
