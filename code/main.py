@@ -395,35 +395,126 @@ async def get_current_user_info(
 
 
 
+# @app.post("/api/ocr")
+# async def ocr_image(
+#     file: UploadFile = File(...)
+# ):
+#     import io
+#     import numpy as np
+#     import cv2
+#     from PIL import Image, ImageEnhance, ImageFilter
+#     import pytesseract
+#     try:
+#         contents = await file.read()
+#         image = Image.open(io.BytesIO(contents))
+
+#         bw_img = image.convert('L')
+
+#         # edges = bw_img.filter(ImageFilter.FIND_EDGES)
+
+#         min_noise = bw_img.filter(ImageFilter.MedianFilter())
+
+#         enhancer = ImageEnhance.Contrast(min_noise)
+#         # bw_img = min_noise.convert('L')
+
+#         min_contrast = enhancer.enhance(2)
+
+#         res_img = min_contrast
+
+#         text = pytesseract.image_to_string(res_img, lang='rus+eng')
+#         res_text = re.split(r'\n|\n\n|&', text)
+#         result = [item for item in res_text if item != ""]
+#         return result
+#     except Exception as e:
+#         return HTTPException(status_code=500, detail={"error ocr": str(e)})
 @app.post("/api/ocr")
 async def ocr_image(
     file: UploadFile = File(...)
 ):
+    import io
+    import numpy as np
+    import cv2
+    from PIL import Image, ImageEnhance, ImageFilter
+    import pytesseract
     try:
         contents = await file.read()
-        image = Image.open(io.BytesIO(contents))
+        # Чтение изображения с помощью OpenCV
+        nparr = np.frombuffer(contents, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        if img is None:
+            return ""  # Ошибка загрузки
 
-        bw_img = image.convert('L')
+        # 1. Увеличение резкости (unsharp mask)
+        def unsharp_mask(image, kernel_size=(5,5), sigma=1.0, amount=1.5, threshold=0):
+            blurred = cv2.GaussianBlur(image, kernel_size, sigma)
+            sharpened = float(amount + 1) * image - float(amount) * blurred
+            sharpened = np.maximum(sharpened, np.zeros(sharpened.shape))
+            sharpened = np.minimum(sharpened, 255 * np.ones(sharpened.shape))
+            sharpened = sharpened.round().astype(np.uint8)
+            if threshold > 0:
+                low_contrast_mask = np.absolute(image - blurred) < threshold
+                np.copyto(sharpened, image, where=low_contrast_mask)
+            return sharpened
 
-        # edges = bw_img.filter(ImageFilter.FIND_EDGES)
+        img = unsharp_mask(img)
 
-        min_noise = bw_img.filter(ImageFilter.MedianFilter())
+        # 2. Преобразование в оттенки серого
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        enhancer = ImageEnhance.Contrast(min_noise)
-        # bw_img = min_noise.convert('L')
+        # 3. Удаление шума (медианный фильтр)
+        gray = cv2.medianBlur(gray, 3)
 
-        min_contrast = enhancer.enhance(2)
+        # 4. Бинаризация (адаптивный порог или Отсу)
+        # Если текст темный на светлом фоне, то инвертируем
+        # Для визиток обычно тёмный текст на светлом фоне
+        # Используем адаптивный порог, чтобы учесть неравномерность освещения
+        binary = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                    cv2.THRESH_BINARY, 15, 10)
+        # Альтернатива: метод Отсу, если фон равномерный
+        # _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-        res_img = min_contrast
+        # 5. Увеличение размера, если текст мелкий (например, в 2 раза)
+        height, width = binary.shape
+        if height < 1000 or width < 1000:  # если маленькое разрешение
+            scale = 2
+            new_size = (width * scale, height * scale)
+            binary = cv2.resize(binary, new_size, interpolation=cv2.INTER_CUBIC)
 
-        text = pytesseract.image_to_string(res_img, lang='rus+eng')
-        res_text = re.split(r'\n|\n\n|&', text)
-        result = [item for item in res_text if item != ""]
-        return result
+        # 6. Удаление мелких шумов (морфологическая операция)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
+        binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)  # закрытие дыр
+        binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)   # удаление точек
+
+        # 7. Коррекция наклона (deskew)
+        coords = np.column_stack(np.where(binary > 0))
+        if len(coords) > 0:
+            angle = cv2.minAreaRect(coords)[-1]
+            if angle < -45:
+                angle = -(90 + angle)
+            else:
+                angle = -angle
+            if abs(angle) > 0.5:
+                (h, w) = binary.shape[:2]
+                center = (w // 2, h // 2)
+                M = cv2.getRotationMatrix2D(center, angle, 1.0)
+                binary = cv2.warpAffine(binary, M, (w, h), flags=cv2.INTER_CUBIC,
+                                        borderMode=cv2.BORDER_REPLICATE)
+
+        # 8. Опционально: обрезка по краям, удаление лишних линий
+        # Например, можно удалить рамки с помощью морфологии
+
+        # 9. Конвертируем обратно в PIL для pytesseract (или можно напрямую использовать cv2 с pytesseract)
+        pil_img = Image.fromarray(binary)
+
+        # 10. Запуск Tesseract с оптимальными параметрами для визитки
+        custom_config = r'--oem 3 --psm 6 -c tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@.-_ "'
+        text = pytesseract.image_to_string(pil_img, lang='rus+eng', config=custom_config)
+
+        return text.strip()
+
+        # return result
     except Exception as e:
         return HTTPException(status_code=500, detail={"error ocr": str(e)})
-
-
 
 if __name__ == "__main__":
     uvicorn.run(
