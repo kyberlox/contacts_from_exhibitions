@@ -474,20 +474,28 @@ async def ocr_image(
         result = [line.strip() for line in best_text.split('\n') if line.strip()]
 
         def is_meaningful_line(line: str) -> bool:
+            """
+            Проверяет, является ли строка осмысленной (не мусорной).
+            Критерии:
+            - Не пустая.
+            - Доля буквенно-цифровых символов (включая цифры) > 30%.
+            - Содержит хотя бы одно слово (последовательность букв длиной >= 2).
+            """
             s = line.strip()
             if not s:
                 return False
-            # Доля буквенно-цифровых
+
+            # 1. Доля буквенно-цифровых символов
             alnum_count = sum(c.isalnum() for c in s)
             if alnum_count / len(s) < 0.3:
                 return False
-            # Проверяем, есть ли слово (буквы >=2) ИЛИ строка похожа на телефон/адрес (в основном цифры и спецсимволы)
-            if re.search(r'[a-zA-Zа-яА-ЯёЁ]{2,}', s):
-                return True
-            # Разрешённые символы для телефонов/адресов: цифры, пробелы, +, -, (, ), ., /
-            if re.match(r'^[\d\s\+\-\(\)\.\/]+$', s):
-                return True
-            return False
+
+            # 2. Наличие слова (минимум две буквы подряд)
+            # Для русского + английского
+            if not re.search(r'[a-zA-Zа-яА-ЯёЁ]{2,}', s):
+                return False
+
+            return True
 
         filtered_result = [line for line in result if is_meaningful_line(line)]
         return filtered_result
