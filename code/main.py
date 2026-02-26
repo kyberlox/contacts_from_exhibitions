@@ -412,7 +412,8 @@ async def ocr_image(
         enhancer = ImageEnhance.Contrast(min_noise)
         # bw_img = min_noise.convert('L')
 
-        min_contrast = enhancer.enhance(4)
+        min_contrast = enhancer.enhance(8)
+
         res_img = min_contrast
 
         text = pytesseract.image_to_string(res_img, lang='rus+eng')
