@@ -368,7 +368,7 @@ async def get_exhibition_stats(
         # Получаем статистику по типам контактов
         # wb = Workbook() 
         ws = wb.active
-        ws.title = f"Статистика по выставке {exhibition.title!r}"
+        ws.title = f"Статистика по выставке {exhibition.title}"
         # Запись данных
         # ws['A1'] = 'Город'
         # ws['B1'] = 'ФИО'
