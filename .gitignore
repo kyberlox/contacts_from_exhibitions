@@ -4,6 +4,7 @@
 
 /code/uploads/
 /postgresql/
+/nginx/ssl/
 
 **/__pycache__/**
 **.sh
