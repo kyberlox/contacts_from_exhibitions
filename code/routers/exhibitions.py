@@ -366,6 +366,10 @@ async def get_exhibition_stats(
         
         wb = load_workbook('./statistic_pattern.xlsx')
 
+        tnr_style = NamedStyle(name="times_new_roman")
+        tnr_style.font = Font(name='Times New Roman', size=12)
+        wb.add_named_style(tnr_style)
+        
         # Получаем статистику по типам контактов
         # wb = Workbook() 
         ws = wb.active
@@ -386,9 +390,7 @@ async def get_exhibition_stats(
             ws[f'E{i}'] = contact.email if contact.email else 'Не указан'
             ws[f'F{i}'] = f"{exhibition.start_date} {exhibition.title}"
 
-        tnr_style = NamedStyle(name="times_new_roman")
-        tnr_style.font = Font(name='Times New Roman', size=12)
-        wb.add_named_style(tnr_style)
+        
 
         excel_buffer = io.BytesIO()
         wb.save(excel_buffer)
