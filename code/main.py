@@ -472,6 +472,7 @@ async def ocr_image(
 
         # 7. Очистка результата (разбивка по строкам, удаление пустых)
         result = [line.strip() for line in best_text.split('\n') if line.strip()]
+
         def is_good_line(line: str) -> bool:
             # Убираем лишние пробелы
             s = line.strip()
@@ -491,7 +492,7 @@ async def ocr_image(
             return True
 
         filtered_result = [line for line in result if is_good_line(line)]
-        return filtered_result
+        return result
 
         # return result
     except Exception as e:
