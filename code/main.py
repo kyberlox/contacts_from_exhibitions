@@ -408,7 +408,7 @@ async def ocr_image(
         result = [item for item in res_text if item != ""]
         return result
     except Exception as e:
-        return HTTPException(status_code=500, content={"error ocr": str(e)})
+        return HTTPException(status_code=500, detail={"error ocr": str(e)})
 
 
 
