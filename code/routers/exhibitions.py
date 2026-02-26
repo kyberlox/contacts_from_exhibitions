@@ -381,7 +381,7 @@ async def get_exhibition_stats(
             ws[f'A{i}'] = contact.city if contact.city else 'Не указан'
             ws[f'B{i}'] = contact.full_name if contact.full_name else 'Не указан'
             ws[f'C{i}'] = contact.position if contact.position else 'Не указана'
-            ws[f'D{i}'] = contact.phone_number if contact.phone_number else 'Не указан'
+            ws[f'D{i}'] = str(contact.phone_number) if contact.phone_number else 'Не указан'
             ws[f'E{i}'] = contact.email if contact.email else 'Не указан'
             ws[f'F{i}'] = f"{exhibition.start_date} {exhibition.title}"
 
