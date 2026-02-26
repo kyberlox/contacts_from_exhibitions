@@ -182,9 +182,7 @@ async def create_contact(
 
     # Подготавливаем данные
     contact_dict = contact_data.dict(exclude_none=True)
-    print("kjdvgksjrng")
     if "exhibition_id" in contact_dict and contact_dict["exhibition_id"] is not None:
-        print("kjsnvfksjnvkjsn")
         # Проверяем существование выставки
         exhibition_result = await db.execute(
             select(Exhibition).where(Exhibition.id == contact_dict["exhibition_id"])
@@ -197,13 +195,16 @@ async def create_contact(
                 detail="Выставка не найдена"
             )
         contact_dict["exhibition_id"]  = exhibition.id
-    elif "exhibition_id" not in contact_dict or contact_dict["exhibition_id"] is None:
-        contact_dict["exhibition_id"] = current_exhibition #await get_current_exhibition(db)
-        print("ljkghjfgh")
     else:
         contact_dict["exhibition_id"] = current_exhibition #await get_current_exhibition(db)
-        print("hgdcjkhshgcjkhsgcj")
 
+    """
+    ЕСЛИ ЭТО НЕ РАБОТАЕТ, ТО Я ТЕБЯ ПОЗДРАВЛЯЮ
+    СЕЙЧАС НЕТ АКТИВНЫХ ВЫСТАВОК
+    А СКОРЕЕ ВС ЕГО,
+    НЕТ НИКАКИХ ВЫСТАВОК ВООБЩЕ!!!!!
+    КУДА ТЫ СОБРАЛСЯ ДОБАВИТЬ ЭТОТ КОНТАКТ?
+    """
     
 
     # Приводим email к нижнему регистру
