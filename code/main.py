@@ -433,80 +433,44 @@ async def ocr_image(
     from PIL import Image, ImageEnhance, ImageFilter
     import pytesseract
     try:
+        # contents = await file.read()
         contents = await file.read()
-        # Чтение изображения с помощью OpenCV
-        nparr = np.frombuffer(contents, np.uint8)
-        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        if img is None:
-            return ""  # Ошибка загрузки
+        image = Image.open(io.BytesIO(contents))
 
-        # 1. Увеличение резкости (unsharp mask)
-        def unsharp_mask(image, kernel_size=(5,5), sigma=1.0, amount=1.5, threshold=0):
-            blurred = cv2.GaussianBlur(image, kernel_size, sigma)
-            sharpened = float(amount + 1) * image - float(amount) * blurred
-            sharpened = np.maximum(sharpened, np.zeros(sharpened.shape))
-            sharpened = np.minimum(sharpened, 255 * np.ones(sharpened.shape))
-            sharpened = sharpened.round().astype(np.uint8)
-            if threshold > 0:
-                low_contrast_mask = np.absolute(image - blurred) < threshold
-                np.copyto(sharpened, image, where=low_contrast_mask)
-            return sharpened
+        # 1. Конвертация в grayscale
+        gray = image.convert('L')
 
-        img = unsharp_mask(img)
+        # 2. Повышение контраста (умеренно)
+        enhancer = ImageEnhance.Contrast(gray)
+        gray = enhancer.enhance(1.8)
 
-        # 2. Преобразование в оттенки серого
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # 3. Повышение резкости (Unsharp Mask)
+        gray = gray.filter(ImageFilter.UnsharpMask(radius=1, percent=150, threshold=2))
 
-        # 3. Удаление шума (медианный фильтр)
-        gray = cv2.medianBlur(gray, 3)
+        # 4. Медианный фильтр для удаления шума (размер 3)
+        gray = gray.filter(ImageFilter.MedianFilter(size=3))
 
-        # 4. Бинаризация (адаптивный порог или Отсу)
-        # Если текст темный на светлом фоне, то инвертируем
-        # Для визиток обычно тёмный текст на светлом фоне
-        # Используем адаптивный порог, чтобы учесть неравномерность освещения
-        binary = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                    cv2.THRESH_BINARY, 15, 10)
-        # Альтернатива: метод Отсу, если фон равномерный
-        # _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        # 5. Увеличение изображения, если оно маленькое (опционально)
+        if gray.width < 1000 or gray.height < 1000:
+            new_size = (gray.width * 2, gray.height * 2)
+            gray = gray.resize(new_size, Image.Resampling.LANCZOS)
 
-        # 5. Увеличение размера, если текст мелкий (например, в 2 раза)
-        height, width = binary.shape
-        if height < 1000 or width < 1000:  # если маленькое разрешение
-            scale = 2
-            new_size = (width * scale, height * scale)
-            binary = cv2.resize(binary, new_size, interpolation=cv2.INTER_CUBIC)
+        # 6. Запускаем Tesseract с несколькими режимами PSM и выбираем лучший
+        psms = [3, 4, 6, 11]  # 3 - авто, 4 - столбец, 6 - единый блок, 11 - разреженный текст
+        best_text = ""
+        max_lines = 0
 
-        # 6. Удаление мелких шумов (морфологическая операция)
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
-        binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)  # закрытие дыр
-        binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)   # удаление точек
+        for psm in psms:
+            config = f'--oem 3 --psm {psm}'  # без whitelist, чтобы не терять символы
+            text = pytesseract.image_to_string(gray, lang='rus+eng', config=config)
+            lines = [line.strip() for line in text.split('\n') if line.strip()]
+            if len(lines) > max_lines:
+                max_lines = len(lines)
+                best_text = text
 
-        # 7. Коррекция наклона (deskew)
-        coords = np.column_stack(np.where(binary > 0))
-        if len(coords) > 0:
-            angle = cv2.minAreaRect(coords)[-1]
-            if angle < -45:
-                angle = -(90 + angle)
-            else:
-                angle = -angle
-            if abs(angle) > 0.5:
-                (h, w) = binary.shape[:2]
-                center = (w // 2, h // 2)
-                M = cv2.getRotationMatrix2D(center, angle, 1.0)
-                binary = cv2.warpAffine(binary, M, (w, h), flags=cv2.INTER_CUBIC,
-                                        borderMode=cv2.BORDER_REPLICATE)
-
-        # 8. Опционально: обрезка по краям, удаление лишних линий
-        # Например, можно удалить рамки с помощью морфологии
-
-        # 9. Конвертируем обратно в PIL для pytesseract (или можно напрямую использовать cv2 с pytesseract)
-        pil_img = Image.fromarray(binary)
-
-        # 10. Запуск Tesseract с оптимальными параметрами для визитки
-        custom_config = r'--oem 3 --psm 6 -c tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@.-_ "'
-        text = pytesseract.image_to_string(pil_img, lang='rus+eng', config=custom_config)
-
-        return text.strip()
+        # 7. Очистка результата (разбивка по строкам, удаление пустых)
+        result = [line.strip() for line in best_text.split('\n') if line.strip()]
+        return result
 
         # return result
     except Exception as e:
