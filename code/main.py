@@ -61,10 +61,14 @@ app = FastAPI(
     title="Exhibition Contacts API",
     description="API для сбора и управления контактами с выставок",
     version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
+    # docs_url="/docs",
+    docs_url=None,
+    # redoc_url="/redoc",
+    redoc_url=None,
+    openapi_url="/api/openapi.json",
     lifespan=lifespan
 )
+
 
 # Настройка CORS
 app.add_middleware(
@@ -288,7 +292,7 @@ async def login_get(
         await db.commit()
         await db.refresh(user)
 
-        redirect_url = f"http://exhibitions.emk.org.ru/docs"
+        redirect_url = f"http://exhibitions.emk.org.ru/api/docs"
         #  # Создаем RedirectResponse
         response = RedirectResponse(url=redirect_url)
 
