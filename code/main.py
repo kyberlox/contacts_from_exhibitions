@@ -467,6 +467,7 @@ async def ocr_image(
             if len(lines) > max_lines:
                 max_lines = len(lines)
                 best_text = text
+                print(psm, 'че лучше')
 
         # 7. Очистка результата (разбивка по строкам, удаление пустых)
         result = [line.strip() for line in best_text.split('\n') if line.strip()]
