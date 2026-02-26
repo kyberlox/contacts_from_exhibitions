@@ -412,7 +412,7 @@ async def ocr_image(
         enhancer = ImageEnhance.Contrast(min_noise)
         # bw_img = min_noise.convert('L')
 
-        min_contrast = enhancer.enhance(8)
+        min_contrast = enhancer.enhance(2)
 
         res_img = min_contrast
 
