@@ -383,7 +383,7 @@ async def get_exhibition_stats(
             ws[f'C{i}'] = contact.position if contact.position else 'Не указана'
             ws[f'D{i}'] = contact.phone_number if contact.phone_number else 'Не указан'
             ws[f'E{i}'] = contact.email if contact.email else 'Не указан'
-            ws[f'F{i}'] = f"{exhibition.start_date} {exhibition.title!r}"
+            ws[f'F{i}'] = f"{exhibition.start_date} {exhibition.title}"
 
         excel_buffer = io.BytesIO()
         wb.save(excel_buffer)
