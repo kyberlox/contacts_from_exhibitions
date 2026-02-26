@@ -473,26 +473,24 @@ async def ocr_image(
         # 7. Очистка результата (разбивка по строкам, удаление пустых)
         result = [line.strip() for line in best_text.split('\n') if line.strip()]
 
-        def is_good_line(line: str) -> bool:
-            # Убираем лишние пробелы
+        def is_meaningful_line(line: str) -> bool:
             s = line.strip()
             if not s:
                 return False
-            # Если строка состоит только из символов пунктуации/спецсимволов - отбрасываем
-            # Подсчитаем количество буквенно-цифровых символов
+            # Доля буквенно-цифровых
             alnum_count = sum(c.isalnum() for c in s)
-            # Общая длина
-            total_len = len(s)
-            # Если буквенно-цифровых символов меньше 30% - скорее всего мусор
-            if total_len > 0 and alnum_count / total_len < 0.3:
+            if alnum_count / len(s) < 0.3:
                 return False
-            # Проверяем, есть ли в строке хотя бы одна последовательность букв длиной >=2 (слово)
-            if not re.search(r'[a-zA-Zа-яА-ЯёЁ]{2,}', s):
-                return False
-            return True
+            # Проверяем, есть ли слово (буквы >=2) ИЛИ строка похожа на телефон/адрес (в основном цифры и спецсимволы)
+            if re.search(r'[a-zA-Zа-яА-ЯёЁ]{2,}', s):
+                return True
+            # Разрешённые символы для телефонов/адресов: цифры, пробелы, +, -, (, ), ., /
+            if re.match(r'^[\d\s\+\-\(\)\.\/]+$', s):
+                return True
+            return False
 
-        filtered_result = [line for line in result if is_good_line(line)]
-        return result
+        filtered_result = [line for line in result if is_meaningful_line(line)]
+        return filtered_result
 
         # return result
     except Exception as e:
