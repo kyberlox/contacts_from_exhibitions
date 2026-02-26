@@ -353,7 +353,7 @@ async def get_exhibition_stats(
         # Получаем количество контактов
         from models.contact import Contact
         stmt_contacts = await db.execute(
-            select(Contact).where(Contact.exhibition_id == exhibition_id)
+            select(Contact).where(Contact.exhibition_id == exhibition_id)     # , Contact.is_validated == True
         )
         exhibition_contacts = stmt_contacts.scalars().all()
 
