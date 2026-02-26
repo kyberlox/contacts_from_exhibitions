@@ -366,10 +366,6 @@ async def get_exhibition_stats(
         
         wb = load_workbook('./statistic_pattern.xlsx')
 
-        tnr_style = NamedStyle(name="times_new_roman")
-        tnr_style.font = Font(name='Times New Roman', size=12)
-        wb.add_named_style(tnr_style)
-        
         # Получаем статистику по типам контактов
         # wb = Workbook() 
         ws = wb.active
@@ -383,12 +379,36 @@ async def get_exhibition_stats(
         # ws['F1'] = 'Дата и место пересечения'
         tnr_font = Font(name='Times New Roman', size=12)
         for i, contact in enumerate(exhibition_contacts, start=2):
-            ws[f'A{i}'] = contact.city if contact.city else 'Не указан'
-            ws[f'B{i}'] = contact.full_name if contact.full_name else 'Не указан'
-            ws[f'C{i}'] = contact.position if contact.position else 'Не указана'
-            ws[f'D{i}'] = str(contact.phone_number) if contact.phone_number else 'Не указан'
-            ws[f'E{i}'] = contact.email if contact.email else 'Не указан'
-            ws[f'F{i}'] = f"{exhibition.start_date} {exhibition.title}"
+            cell = ws[f'A{i}']
+            cell.value = clean_text(contact.city) if contact.city else clean_text('Не указан')
+            cell.font = tnr_font
+
+            # ws[f'A{i}'] = contact.city if contact.city else 'Не указан'
+            cell = ws[f'B{i}']
+            cell.value = clean_text(contact.full_name) if contact.full_name else clean_text('Не указан')
+            cell.font = tnr_font
+
+            cell = ws[f'C{i}']
+            cell.value = clean_text(contact.position) if contact.position else clean_text('Не указан')
+            cell.font = tnr_font
+
+            cell = ws[f'D{i}']
+            cell.value = clean_text(contact.phone_number) if contact.phone_number else clean_text('Не указан')
+            cell.font = tnr_font
+
+            cell = ws[f'E{i}']
+            cell.value = clean_text(contact.email) if contact.email else clean_text('Не указан')
+            cell.font = tnr_font
+
+            cell = ws[f'F{i}']
+            cell.value = clean_text(contact.start_date) if contact.start_date else clean_text('Не указан')
+            cell.font = tnr_font
+
+            # ws[f'B{i}'] = contact.full_name if contact.full_name else 'Не указан'
+            # ws[f'C{i}'] = contact.position if contact.position else 'Не указана'
+            # ws[f'D{i}'] = str(contact.phone_number) if contact.phone_number else 'Не указан'
+            # ws[f'E{i}'] = contact.email if contact.email else 'Не указан'
+            # ws[f'F{i}'] = f"{exhibition.start_date} {exhibition.title}"
 
         
 
