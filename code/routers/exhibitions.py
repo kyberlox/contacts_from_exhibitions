@@ -363,7 +363,7 @@ async def get_exhibition_stats(
                 detail=f"Контакты по выставке {exhibition.title!r} не найдены"
             )
         
-        wb = load_workbook('./code/statistics_pattern.xlsx')
+        wb = load_workbook('./statistics_pattern.xlsx')
 
         # Получаем статистику по типам контактов
         # wb = Workbook() 
