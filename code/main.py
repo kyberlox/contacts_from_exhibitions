@@ -79,7 +79,7 @@ app.add_middleware(
 )
 
 # Подключаем статические файлы
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/api/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 app.include_router(contacts_router, prefix="/api")
 app.include_router(exhibitions_router, prefix="/api")
