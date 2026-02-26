@@ -334,6 +334,7 @@ async def get_exhibition_stats(
     """Получение статистики по выставке"""
     from sqlalchemy import func
     from openpyxl import Workbook, load_workbook
+    from openpyxl.styles import Font, NamedStyle
     import io
     import requests
     import json
@@ -376,7 +377,7 @@ async def get_exhibition_stats(
         # ws['D1'] = 'Телефон'
         # ws['E1'] = 'Почта'
         # ws['F1'] = 'Дата и место пересечения'
-
+        tnr_font = Font(name='Times New Roman', size=12)
         for i, contact in enumerate(exhibition_contacts, start=2):
             ws[f'A{i}'] = contact.city if contact.city else 'Не указан'
             ws[f'B{i}'] = contact.full_name if contact.full_name else 'Не указан'
@@ -384,6 +385,10 @@ async def get_exhibition_stats(
             ws[f'D{i}'] = str(contact.phone_number) if contact.phone_number else 'Не указан'
             ws[f'E{i}'] = contact.email if contact.email else 'Не указан'
             ws[f'F{i}'] = f"{exhibition.start_date} {exhibition.title}"
+
+        tnr_style = NamedStyle(name="times_new_roman")
+        tnr_style.font = Font(name='Times New Roman', size=12)
+        wb.add_named_style(tnr_style)
 
         excel_buffer = io.BytesIO()
         wb.save(excel_buffer)
