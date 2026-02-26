@@ -292,7 +292,7 @@ async def login_get(
         await db.commit()
         await db.refresh(user)
 
-        redirect_url = f"http://exhibitions.emk.org.ru/api/docs"
+        redirect_url = f"http://exhibitions.emk.org.ru:8000/docs"
         #  # Создаем RedirectResponse
         response = RedirectResponse(url=redirect_url)
 
