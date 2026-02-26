@@ -288,7 +288,7 @@ async def login_get(
         await db.commit()
         await db.refresh(user)
 
-        redirect_url = f"http://exhibitions.kyberlox.ru/users/me"
+        redirect_url = f"http://exhibitions.emk.org.ru/docs"
         #  # Создаем RedirectResponse
         response = RedirectResponse(url=redirect_url)
 
