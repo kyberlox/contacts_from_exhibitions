@@ -62,7 +62,6 @@ app = FastAPI(
     description="API для сбора и управления контактами с выставок",
     version="1.0.0",
     docs_url="/api/docs",
-    docs_url=None,
     # redoc_url="/redoc",
     redoc_url=None,
     openapi_url="/api/openapi.json",
