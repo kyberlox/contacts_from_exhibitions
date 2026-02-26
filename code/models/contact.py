@@ -42,7 +42,7 @@ class Contact(Base):
     exhibition_id = Column(
         Integer,
         ForeignKey("exhibitions.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
         index=True
     )
     author_id = Column(
