@@ -197,7 +197,7 @@ async def create_contact(
                 detail="Выставка не найдена"
             )
         contact_dict["exhibition_id"]  = exhibition.id
-    elif contact_dict["exhibition_id"] is None:
+    elif "exhibition_id" not in contact_dict or contact_dict["exhibition_id"] is None:
         contact_dict["exhibition_id"] = current_exhibition #await get_current_exhibition(db)
         print("ljkghjfgh")
     else:
