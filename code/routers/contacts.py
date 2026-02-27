@@ -401,7 +401,7 @@ async def get_contact(
     contact_dict = contact.__dict__
 
     #добавить ФИО автора
-    user_id = contact.user_id
+    user_id = contact.author_id
     if user_id is not None:
         result = await db.execute(
             select(User).where(User.id == user_id)
@@ -409,6 +409,8 @@ async def get_contact(
         user = result.scalar_one_or_none()
 
         user_name = user.full_name
+
+        contact_dict['author']
 
     return contact_dict
 
