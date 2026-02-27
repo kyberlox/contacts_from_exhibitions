@@ -118,6 +118,7 @@ export interface IUsersQuestionaire {
 export interface IGetContact {
     "description": string,
     "author_id": number,
+    "author": string,
     "full_name": string,
     "is_validated": boolean,
     "position": string,
