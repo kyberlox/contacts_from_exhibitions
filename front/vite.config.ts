@@ -22,16 +22,9 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: 4173,
-    proxy: {
-      '/api': {
-        target: 'https://exhibitions.kyberlox.ru/',
-        changeOrigin: true,
-        secure: false
-      }
-    }
-  },
+    },
   preview: {
-    allowedHosts: ['https://exhibitions.kyberlox.ru']
+    allowedHosts: ['https://exhibitions.kyberlox.ru', 'https://exhibitions.emk.ru']
   },
 
   css: {
