@@ -433,7 +433,7 @@ async def get_contact(
     #     #"exhibition": exhibition_data,
     # }
 
-@router.put("/{contact_id}", response_model=ContactWithExhibition, dependencies=[Depends(require_auth)])
+@router.put("/{contact_id}", dependencies=[Depends(require_auth)])#response_model=ContactWithExhibition, 
 async def update_contact(
         contact_id: int,
         contact_data: ContactUpdate,
