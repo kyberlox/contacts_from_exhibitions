@@ -19,12 +19,15 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
-  server: {
+ server: {
     host: "0.0.0.0",
-    port: 4173,
-    },
+    port: 5173,
+    allowedHosts: true
+  },
   preview: {
-    allowedHosts: ['https://exhibitions.kyberlox.ru', 'https://exhibitions.emk.ru']
+    host: "0.0.0.0",
+    port: 5173,
+    allowedHosts: true
   },
 
   css: {
