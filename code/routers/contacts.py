@@ -399,39 +399,20 @@ async def get_contact(
         )
     
     contact_dict = contact.__dict__
+
+    #добавить ФИО автора
+    user_id = contact.user_id
+    if user_id is not None:
+        result = await db.execute(
+            select(User).where(User.id == user_id)
+        )
+        user = result.scalar_one_or_none()
+
+        user_name = user.full_name
+
     return contact_dict
 
-    # Загружаем связанную выставку отдельно
-    # exhibition_result = await db.execute(
-    #     select(Exhibition).where(Exhibition.id == contact.exhibition_id)
-    # )
-    # exhibition = exhibition_result.scalar_one_or_none()
 
-    # exhibition_data = None
-    # if exhibition:
-    #     exhibition_data = {
-    #         "id": exhibition.id,
-    #         "title": exhibition.title,
-    #         "start_date": exhibition.start_date,
-    #         "end_date": exhibition.end_date,
-    #         "preview_file_id": exhibition.preview_file_id,
-    #     }
-
-    # # Возвращаем данные вручную
-    # return {
-    #     "id": contact.id,
-    #     "title": contact.title,
-    #     "description": contact.description,
-    #     "full_name": contact.full_name,
-    #     "position": contact.position,
-    #     "email": contact.email,
-    #     "phone_number": contact.phone_number,
-    #     "questionnaire": contact.questionnaire,
-    #     #"exhibition_id": contact.exhibition_id,
-    #     "created_at": contact.created_at,
-    #     "updated_at": contact.updated_at,
-    #     #"exhibition": exhibition_data,
-    # }
 
 @router.put("/{contact_id}", dependencies=[Depends(require_auth)])#response_model=ContactWithExhibition, 
 async def update_contact(
