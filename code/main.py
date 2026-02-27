@@ -396,7 +396,11 @@ async def get_current_user_info(
 @app.get("/api/user_agreement")
 async def get_user_agreement():
     file_path = './user_agreement.docx'
-    return FileResponse(file_path)
+    return FileResponse(
+        path=file_path,
+        filename="пользовательское_соглашение.docx",
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
 
 # @app.post("/api/ocr")
 # async def ocr_image(
