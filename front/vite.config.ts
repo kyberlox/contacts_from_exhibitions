@@ -19,20 +19,20 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
-  // server: {
-  //   host: "0.0.0.0",
-  //   port: 4173,
-  //   proxy: {
-  //     '': {
-  //       target: 'http://exhibitions.kyberlox.ru/',
-  //       changeOrigin: true,
-  //       secure: false
-  //     }
-  //   }
-  // },
-  // preview: {
-  //   allowedHosts: ['meeting.mosckba.ru']
-  // },
+  server: {
+    host: "0.0.0.0",
+    port: 4173,
+    proxy: {
+      '/api': {
+        target: 'https://exhibitions.kyberlox.ru/',
+        changeOrigin: true,
+        secure: false
+      }
+    }
+  },
+  preview: {
+    allowedHosts: ['https://exhibitions.kyberlox.ru']
+  },
 
   css: {
     preprocessorOptions: {
