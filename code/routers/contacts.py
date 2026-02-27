@@ -410,7 +410,7 @@ async def get_contact(
 
         user_name = user.full_name
 
-        contact_dict['author']
+        contact_dict['author'] = user_name
 
     return contact_dict
 
