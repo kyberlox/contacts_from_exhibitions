@@ -30,7 +30,7 @@ services:
       - app-network
 
   frontend:
-    container_name: vue_async
+    container_name: frontend
     build: ./front
     #volumes:
       #- ./front/:/app/
