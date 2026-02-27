@@ -461,17 +461,17 @@ async def ocr_image(
         best_text = ""
         max_lines = 0
 
-        for psm in psms:
-            config = f'--oem 3 --psm {psm}'  # без whitelist, чтобы не терять символы
-            text = pytesseract.image_to_string(gray, lang='rus+eng', config=config)
-            lines = [line.strip() for line in text.split('\n') if line.strip()]
-            if len(lines) > max_lines:
-                max_lines = len(lines)
-                best_text = text
-                print(psm, 'че лучше')
+        # for psm in psms:
+        config = f'--oem 3 --psm 11'  # без whitelist, чтобы не терять символы
+        text = pytesseract.image_to_string(gray, lang='rus+eng', config=config)
+            # lines = [line.strip() for line in text.split('\n') if line.strip()]
+            # if len(lines) > max_lines:
+            #     max_lines = len(lines)
+            #     best_text = text
+            #     print(psm, 'че лучше')
 
         # 7. Очистка результата (разбивка по строкам, удаление пустых)
-        result = [line.strip() for line in best_text.split('\n') if line.strip()]
+        result = [line.strip() for line in text.split('\n') if line.strip()]
 
         def is_good_line(line: str) -> bool:
             # Убираем лишние пробелы
