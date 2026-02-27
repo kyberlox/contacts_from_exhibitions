@@ -473,36 +473,98 @@ async def ocr_image(
         # 7. Очистка результата (разбивка по строкам, удаление пустых)
         result = [line.strip() for line in best_text.split('\n') if line.strip()]
 
-        def is_meaningful_line(line: str) -> bool:
-            """
-            Проверяет, является ли строка осмысленной (не мусорной).
-            Критерии:
-            - Не пустая.
-            - Доля буквенно-цифровых символов (включая цифры) > 30%.
-            - Содержит хотя бы одно слово (последовательность букв длиной >= 2).
-            """
+        def is_good_line(line: str) -> bool:
+            # Убираем лишние пробелы
             s = line.strip()
             if not s:
                 return False
-
-            # 1. Доля буквенно-цифровых символов
+            # Если строка состоит только из символов пунктуации/спецсимволов - отбрасываем
+            # Подсчитаем количество буквенно-цифровых символов
             alnum_count = sum(c.isalnum() for c in s)
-            if alnum_count / len(s) < 0.3:
+            # Общая длина
+            total_len = len(s)
+            # Если буквенно-цифровых символов меньше 30% - скорее всего мусор
+            if total_len > 0 and alnum_count / total_len < 0.3:
                 return False
-
-            # 2. Наличие слова (минимум две буквы подряд)
-            # Для русского + английского
+            # Проверяем, есть ли в строке хотя бы одна последовательность букв длиной >=2 (слово)
             if not re.search(r'[a-zA-Zа-яА-ЯёЁ]{2,}', s):
                 return False
-
             return True
 
-        filtered_result = [line for line in result if is_meaningful_line(line)]
-        return filtered_result
+        filtered_result = [line for line in result if is_good_line(line)]
+        return result
 
         # return result
     except Exception as e:
         return HTTPException(status_code=500, detail={"error ocr": str(e)})
+
+
+import asyncio
+import aiohttp
+from aiohttp import FormData
+import time
+
+URL = "http://exhibitions.kyberlox.ru/api//ocr_new"      # замените на ваш реальный URL
+IMAGE_PATH = "говно1.jpg"                     # путь к изображению
+NUM_REQUESTS = 10  
+async def send_request(session, url, image_path, request_id):
+    """
+    Отправляет один multipart-запрос с файлом.
+    Возвращает HTTP-статус или None в случае исключения.
+    """
+    try:
+        # Формируем multipart/form-data с файлом
+        data = FormData()
+        # Важно: открываем файл заново для каждого запроса,
+        # чтобы не было конфликтов с позицией чтения
+        with open(image_path, 'rb') as f:
+            file_content = f.read()
+
+        data.add_field('file',
+                       file_content,
+                       filename='image.jpg',
+                       content_type='image/jpeg')
+
+        async with session.post(url, data=data) as response:
+            status = response.status
+            # Для отладки можно прочитать тело ответа
+            # text = await response.text()
+            print(f"[{request_id}] Статус: {status}")
+            # if status != 200:
+            #     print(f"[{request_id}] Ответ: {text[:200]}")
+            return status
+    except Exception as e:
+        print(f"[{request_id}] Ошибка: {e}")
+        return None
+
+@app.post("/api/ocr_test")
+async def test_ocr():
+    start_time = time.time()
+
+    # Увеличиваем лимит одновременных соединений
+    connector = aiohttp.TCPConnector(limit=100)
+    async with aiohttp.ClientSession(connector=connector) as session:
+        tasks = []
+        for i in range(1, NUM_REQUESTS + 1):
+            tasks.append(send_request(session, URL, IMAGE_PATH, i))
+
+        # Запускаем все задачи одновременно
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    end_time = time.time()
+
+    # Подводим итоги
+    success = sum(1 for r in results if r == 200)
+    errors = sum(1 for r in results if r != 200 and r is not None)
+    exceptions = sum(1 for r in results if r is None)
+
+    print("\n========= РЕЗУЛЬТАТЫ =========")
+    print(f"Всего запросов:      {NUM_REQUESTS}")
+    print(f"Успешно (200):        {success}")
+    print(f"Ошибки HTTP (не 200): {errors}")
+    print(f"Исключения:           {exceptions}")
+    print(f"Общее время:          {end_time - start_time:.2f} сек")
+    print("===============================")
 
 if __name__ == "__main__":
     uvicorn.run(
