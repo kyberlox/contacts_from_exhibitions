@@ -1,6 +1,6 @@
 # main.py
 from fastapi import FastAPI, Response, Cookie, HTTPException, status, Depends, File, UploadFile, Form
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
@@ -393,7 +393,10 @@ async def get_current_user_info(
         "created_at": user.created_at
     }
 
-
+@app.get("/user_agreement")
+async def get_user_agreement():
+    file_path = './user_agreement.docx'
+    return FileResponse(file_path)
 
 # @app.post("/api/ocr")
 # async def ocr_image(
