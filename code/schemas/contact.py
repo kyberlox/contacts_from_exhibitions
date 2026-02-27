@@ -46,8 +46,8 @@ class ContactUpdate(BaseSchema):
     phone_number: Optional[str] = Field(None, max_length=255)
     city: Optional[str] = Field(None, max_length=255)
     questionnaire: Optional[Dict[str, Any]] = None
-    notes: Optional[str] = Field(None, description="Заметки администратора")
-    is_validated: Optional[bool] = Field(None, description="Валидирован ли контакт администратором")
+    # notes: Optional[str] = Field(None, description="Заметки администратора")
+    # is_validated: Optional[bool] = Field(None, description="Валидирован ли контакт администратором")
 
     # @field_validator('phone_number')
     # @classmethod
