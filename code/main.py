@@ -504,7 +504,8 @@ import aiohttp
 from aiohttp import FormData
 import time
 
-URL = "http://exhibitions.kyberlox.ru/api/ocr_new"      # замените на ваш реальный URL
+# URL = "http://exhibitions.kyberlox.ru/api/ocr_new"      # замените на ваш реальный URL = 46 сек
+URL = "http://exhibitions.kyberlox.ru/api/ocr"      # замените на ваш реальный URL
 IMAGE_PATH = "говно1.jpg"                     # путь к изображению
 NUM_REQUESTS = 10  
 async def send_request(session, url, image_path, request_id):
