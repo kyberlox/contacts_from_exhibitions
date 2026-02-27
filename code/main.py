@@ -393,7 +393,7 @@ async def get_current_user_info(
         "created_at": user.created_at
     }
 
-@app.get("/user_agreement")
+@app.get("/api/user_agreement")
 async def get_user_agreement():
     file_path = './user_agreement.docx'
     return FileResponse(file_path)
