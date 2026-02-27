@@ -395,35 +395,35 @@ async def get_current_user_info(
 
 
 
-@app.post("/api/ocr")
-async def ocr_image(
-    file: UploadFile = File(...)
-):
-    try:
-        contents = await file.read()
-        image = Image.open(io.BytesIO(contents))
+# @app.post("/api/ocr")
+# async def ocr_image(
+#     file: UploadFile = File(...)
+# ):
+#     try:
+#         contents = await file.read()
+#         image = Image.open(io.BytesIO(contents))
 
-        bw_img = image.convert('L')
+#         bw_img = image.convert('L')
 
-        # edges = bw_img.filter(ImageFilter.FIND_EDGES)
+#         # edges = bw_img.filter(ImageFilter.FIND_EDGES)
 
-        # min_noise = bw_img.filter(ImageFilter.MedianFilter())
+#         # min_noise = bw_img.filter(ImageFilter.MedianFilter())
 
-        # enhancer = ImageEnhance.Contrast(min_noise)
-        # # bw_img = min_noise.convert('L')
+#         # enhancer = ImageEnhance.Contrast(min_noise)
+#         # # bw_img = min_noise.convert('L')
 
-        # min_contrast = enhancer.enhance(2)
+#         # min_contrast = enhancer.enhance(2)
 
-        res_img = bw_img
+#         res_img = bw_img
 
-        text = pytesseract.image_to_string(res_img, lang='rus+eng')
-        res_text = re.split(r'\n|\n\n|&', text)
-        result = [item for item in res_text if item != ""]
-        return result
-    except Exception as e:
-        return HTTPException(status_code=500, detail={"error ocr": str(e)})
+#         text = pytesseract.image_to_string(res_img, lang='rus+eng')
+#         res_text = re.split(r'\n|\n\n|&', text)
+#         result = [item for item in res_text if item != ""]
+#         return result
+#     except Exception as e:
+#         return HTTPException(status_code=500, detail={"error ocr": str(e)})
 
-@app.post("/api/ocr_new")
+@app.post("/api/ocr") # 12 сек 10 запросов
 async def ocr_image(
     file: UploadFile = File(...)
 ):
@@ -497,75 +497,6 @@ async def ocr_image(
         # return result
     except Exception as e:
         return HTTPException(status_code=500, detail={"error ocr": str(e)})
-
-
-import asyncio
-import aiohttp
-from aiohttp import FormData
-import time
-
-URL = "http://exhibitions.kyberlox.ru/api/ocr_new"      # замените на ваш реальный URL = 46 сек
-# URL = "http://exhibitions.kyberlox.ru/api/ocr"      # замените на ваш реальный URL = 8 сек
-IMAGE_PATH = "говно1.jpg"                     # путь к изображению
-NUM_REQUESTS = 10  
-async def send_request(session, url, image_path, request_id):
-    """
-    Отправляет один multipart-запрос с файлом.
-    Возвращает HTTP-статус или None в случае исключения.
-    """
-    try:
-        # Формируем multipart/form-data с файлом
-        data = FormData()
-        # Важно: открываем файл заново для каждого запроса,
-        # чтобы не было конфликтов с позицией чтения
-        with open(image_path, 'rb') as f:
-            file_content = f.read()
-
-        data.add_field('file',
-                       file_content,
-                       filename='image.jpg',
-                       content_type='image/jpeg')
-
-        async with session.post(url, data=data) as response:
-            status = response.status
-            # Для отладки можно прочитать тело ответа
-            # text = await response.text()
-            print(f"[{request_id}] Статус: {status}")
-            # if status != 200:
-            #     print(f"[{request_id}] Ответ: {text[:200]}")
-            return status
-    except Exception as e:
-        print(f"[{request_id}] Ошибка: {e}")
-        return None
-
-@app.post("/api/ocr_test")
-async def test_ocr():
-    start_time = time.time()
-
-    # Увеличиваем лимит одновременных соединений
-    connector = aiohttp.TCPConnector(limit=100)
-    async with aiohttp.ClientSession(connector=connector) as session:
-        tasks = []
-        for i in range(1, NUM_REQUESTS + 1):
-            tasks.append(send_request(session, URL, IMAGE_PATH, i))
-
-        # Запускаем все задачи одновременно
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-
-    end_time = time.time()
-
-    # Подводим итоги
-    success = sum(1 for r in results if r == 200)
-    errors = sum(1 for r in results if r != 200 and r is not None)
-    exceptions = sum(1 for r in results if r is None)
-
-    print("\n========= РЕЗУЛЬТАТЫ =========")
-    print(f"Всего запросов:      {NUM_REQUESTS}")
-    print(f"Успешно (200):        {success}")
-    print(f"Ошибки HTTP (не 200): {errors}")
-    print(f"Исключения:           {exceptions}")
-    print(f"Общее время:          {end_time - start_time:.2f} сек")
-    print("===============================")
 
 if __name__ == "__main__":
     uvicorn.run(
