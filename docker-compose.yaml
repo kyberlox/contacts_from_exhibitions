@@ -32,7 +32,7 @@ services:
   frontend:
     container_name: vue_async
     build: ./front
-    volumes:
+    #volumes:
       #- ./front/:/app/
       #- ./app_logs/frontend:/app/logs  # Логи фронтенда
     ports:
