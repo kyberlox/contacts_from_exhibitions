@@ -69,12 +69,12 @@ class ContactUpdate(BaseSchema):
 class Contact(ContactBase, TimestampSchema):
     id: int
     author_id: Optional[int] = None
-    is_validated: bool = False
-    validated_by_id: Optional[int] = None
-    validated_at: Optional[datetime] = None
-    notes: Optional[str] = None
+    # is_validated: bool = False
+    # validated_by_id: Optional[int] = None
+    # validated_at: Optional[datetime] = None
+    # notes: Optional[str] = None
     author: Optional[UserShort] = None
-    validator: Optional[UserShort] = None
+    # validator: Optional[UserShort] = None
     exhibition: Optional["ExhibitionShort"] = None
 
     model_config = ConfigDict(from_attributes=True)
