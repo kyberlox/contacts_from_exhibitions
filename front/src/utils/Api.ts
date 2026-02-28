@@ -1,9 +1,10 @@
-import axios, {  type AxiosProgressEvent, type AxiosRequestConfig } from 'axios';
+import axios, {  AxiosError, type AxiosProgressEvent, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import {type  IUsersPassport } from '@/views/contactForm/ContactForm.vue';
 import {type IUsersQuestionaire } from '@/views/contactForm/ContactForm.vue';
 import { useUserData } from '@/store/userStore';
 import { computed } from 'vue';
 import { type IPostContacts } from '@/interfaces/IFetchBody';
+import { toast } from 'vue3-toastify';
 
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 
@@ -22,15 +23,38 @@ api.interceptors.request.use((config) => {
     return config
 })
 
+interface IBackendError{
+    detail:
+        {
+            type: string,
+            loc: string[]
+            msg: string,
+            input: string,
+            ctx: {
+                reason: string
+            }
+        }[]
+}
+
+
+const handleBackendResponse = (data:  AxiosError) => {
+    const resp = data.response?.data
+    if(resp && (resp as IBackendError).detail?.length && (resp as IBackendError).detail[0].msg){
+       return toast((resp as IBackendError).detail[0].msg, { type: 'error', position: 'bottom-right' })
+    }
+    else if((data as AxiosError).status == 500){
+        return toast('Ошибка сервера', { type: 'error', position: 'bottom-right' })
+    }
+}
+
 export default class Api {
     static async get(url: string, config?: AxiosRequestConfig) {
         return await api.get(url, config)
         .then(resp=>resp.data)
         .catch(e=>{
-           console.error(e)
+            handleBackendResponse(e)
         })
     }
-
 
     static async post(
         url: string,
@@ -40,20 +64,28 @@ export default class Api {
         }
     ) {
       return api.post(url, data, config)
-       .then(resp=>config ? resp : resp.data)
-        .catch(e=>{
-           console.error(e)
-    })
+           .then(resp=>resp.data)
+           .catch(e=>{
+            handleBackendResponse(e)
+        })
 }
 
     static async put(
         url: string,
         data?: IPostContacts
     ) {
-        return (await api.put(url, data))
+        return api.put(url, data)
+          .then(resp=>resp.data)
+          .catch(e=>{
+                handleBackendResponse(e)
+        })
     }
 
-    static async delete(url: string, data?: number[]) {
-        return await api.delete(url, { data })
+    static async delete(url: string) {
+        return api.delete(url)
+        .then(resp=>resp.data)
+        .catch(e=>{
+                handleBackendResponse(e)
+        })
     }
 }

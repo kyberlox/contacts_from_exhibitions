@@ -127,7 +127,7 @@ export default defineComponent({
             if (props.contactId) {
                 Api.get(`contacts/${props.contactId}/files`)
                     .then((data) => {
-                        if (data?.files.length) {
+                        if (data && data?.files.length) {
                             const keys = ['business_card_back', 'business_card_front'];
                             keys.forEach(key => {
                                 if (data.files.find((el: IGetContactFile) => el.type == key)) {

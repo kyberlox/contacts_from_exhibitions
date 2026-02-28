@@ -6,8 +6,7 @@
         <RouterLink :to="{ name: 'contactEdit', params: { id: contact.id } }"
                     v-for="contact in contacts"
                     :key="contact.id"
-                    :class="['relative block transition-all duration-300 ease-in-out', deletingContactId === contact.id ? 'opacity-0 scale-95' : 'opacity-100 scale-100']"
-                    @transitionend="onTransitionEnd(contact.id)">
+                    :class="['relative block transition-all duration-300 ease-in-out', 'opacity-100 scale-100']">
             <CloseIcon class="w-7 h-7 absolute -top-2 -right-2 rounded-full p-1 shadow-md cursor-pointer hover:scale-110 z-10 hover:bg-red-100 transition-all"
                        @click.stop.capture.prevent="removeContact(contact.id)" />
             <div
@@ -56,7 +55,6 @@ export default defineComponent({
             "created_at": string
         }[]>([]);
 
-        const deletingContactId = ref<number | null>(null);
         const isLoading = ref(true);
 
         const contactInit = () => {
@@ -71,28 +69,16 @@ export default defineComponent({
         })
 
         const removeContact = (id: number) => {
-            deletingContactId.value = id;
-        }
-
-        const onTransitionEnd = (id: number) => {
-            if (deletingContactId.value === id) {
-                Api.delete(`contacts/${id}`)
-                    .then(() => {
-                        contactInit();
-                        deletingContactId.value = null;
-                    })
-                    .catch(() => {
-                        deletingContactId.value = null;
-                    });
-            }
+            Api.delete(`contacts/${id}`)
+                .then(() => {
+                    contactInit();
+                })
         }
 
         return {
             contacts,
-            deletingContactId,
             isLoading,
             removeContact,
-            onTransitionEnd,
             DateUtil
         }
     }

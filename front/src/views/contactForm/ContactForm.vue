@@ -19,6 +19,10 @@
             </div>
         </div>
     </div>
+    <div class="flex flex-col mt-4 gap-3"
+         v-else-if="keywordsLoading">
+        <Loader />
+    </div>
     <div class="flex flex-col gap-4 mt-4">
         <h2 class="mr-auto text-xl font-semibold text-gray-800">
             Контактная информация:
@@ -165,11 +169,12 @@ import Api from '@/utils/Api';
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 import { useUserData } from '@/store/userStore';
-
+import Loader from '@/components/Loader.vue';
 export default defineComponent({
     name: 'contactForm',
     components: {
         ContactFormHeader,
+        Loader
     },
     props: {
         id: {
@@ -178,6 +183,7 @@ export default defineComponent({
     },
     setup(props) {
         const pageType = ref<'new' | 'edit'>('new');
+        const keywordsLoading = ref(false);
 
         const passportRef = ref(passport);
         const passportData = ref<IUsersPassport>({
@@ -213,7 +219,7 @@ export default defineComponent({
             }]);
 
         const visitCard = ref<{ business_card_front: File | null, business_card_back: File | null }>({ business_card_front: null, business_card_back: null });
-        const keywords = ref([]);
+        const keywords = ref<string[]>([]);
         const textInClip = ref();
         const author = ref<string>();
 
@@ -270,6 +276,9 @@ export default defineComponent({
             if (pageType.value == 'new') {
                 Api.post('/contacts/', postBody)
                     .then((data) => {
+                        if (data) {
+                            toast('Контакт успешно сохранен', { type: 'success', position: 'bottom-right' })
+                        }
                         if ((visitCard.value.business_card_back || visitCard.value.business_card_front) && data.id) {
                             const newBody = new FormData();
                             Object.keys(visitCard.value).forEach(el => { if (visitCard.value[el as keyof typeof visitCard.value]) newBody.append(el, visitCard.value[el as keyof typeof visitCard.value] as Blob) })
@@ -307,12 +316,19 @@ export default defineComponent({
             const newBody = new FormData();
             Object.keys(imgObj).forEach(e => {
                 if (!imgObj[e as keyof typeof imgObj]) return
-                newBody.append('file', imgObj[e as keyof typeof imgObj] as File)
+                newBody.append('file', imgObj[e as keyof typeof imgObj] as File);
+                keywordsLoading.value = true
                 Api.post('ocr', newBody)
                     .then((data) => {
-                        if (data && data.length)
-                            keywords.value = data;
+                        if (data && data.length) {
+                            keywords.value.push(data);
+                            toast('Изображение успешно распознано', { type: 'success', position: 'bottom-right' })
+                        }
+                        else {
+                            toast('К сожалению, не удалось распознать изображение', { type: 'error', position: 'bottom-right' })
+                        }
                     })
+                    .finally(() => { keywordsLoading.value = false; newBody.delete('file') })
             })
         }
 
@@ -392,6 +408,7 @@ export default defineComponent({
                         name: 'manufacturer',
                         value: ''
                     }]);
+                author.value = '';
             };
         }, { immediate: true, deep: true })
 
@@ -406,6 +423,7 @@ export default defineComponent({
             keywords,
             textInClip,
             author,
+            keywordsLoading,
             saveContact,
             handleProductPick,
             fileUploaded,

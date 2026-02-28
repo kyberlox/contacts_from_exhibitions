@@ -29,7 +29,7 @@ export default defineComponent({
 
     onMounted(() => {
       Api.get('/users/me_admin')
-        .then((data) => useUserData().setAdmin(data.is_admin))
+        .then((data) => { if (data) useUserData().setAdmin(data.is_admin) })
         .finally(() => isLoading.value = true)
     })
 
