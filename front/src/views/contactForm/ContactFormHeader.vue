@@ -1,23 +1,22 @@
 <template>
-<div class="flex flex-row flex-wrap justify-between gap-2">
-    <div class="flex flex-col w-full max-w-[500px]">
-        <img />
-        <div class="flex flex-col">
-            <h1>Памятка стендиста</h1>
-            <div class="text-md">
-                Внимание! Памятка заполняется для каждого посетителя.
-                Все вопросы обязательны для заполнения.
+<div class="flex flex-col md:flex-row flex-wrap justify-between gap-6 p-4 bg-white rounded-lg shadow-sm">
+    <div class="flex flex-col w-full md:w-1/2 lg:w-[500px]">
+        <div class="flex flex-col space-y-4">
+            <h1 class="text-2xl font-semibold text-gray-800">Памятка стендиста</h1>
+            <div class="text-md text-gray-600 bg-red-50 p-4 rounded-lg">
+                <p class="font-medium">Внимание!</p>
+                <p>Памятка заполняется для каждого посетителя. Все вопросы обязательны для заполнения.</p>
             </div>
-            <div>
-                <b> Загрузить визитную карточку можно нажав на область визитки и сфотографировав или вручную нажатием
-                    на
-                    загрузить из галлереи</b>
+            <div class="text-gray-700 p-4 bg-orange-50 rounded-lg border border-amber-100">
+                <p class="font-medium mb-2">Загрузка визитной карточки</p>
+                <p>Загрузить визитную карточку можно нажав на область визитки и сфотографировав или вручную нажатием на
+                    загрузить из галлереи</p>
             </div>
         </div>
     </div>
-    <div class="flex flex-col w-full">
-        <div class="flex flex-row space-between w-full gap-2">
-            <div class="flex flex-col gap-1"
+    <div class="flex flex-col w-full md:w-1/2 justify-end">
+        <div class="flex flex-col sm:flex-row w-full gap-4">
+            <div class="flex flex-col gap-2 w-full"
                  v-for="value in ['business_card_front', 'business_card_back']"
                  :key="value">
                 <VisitCardPhotoModal v-if="visitCardModalsOpen[value as keyof typeof visitCardModalsOpen]"
@@ -25,24 +24,36 @@
                                      @capturePicture="getPicture"
                                      @close="visitCardModalsOpen[value as keyof typeof visitCardModalsOpen] = false" />
 
-                <div class="bg-orange-200 p-2 max-h-[230px] aspect-video"
+                <div class="bg-gray-50 p-4 rounded-lg border-2 border-dashed border-gray-300 cursor-pointer hover:border-orange-400 transition-colors h-[230px] flex items-center justify-center"
                      @click="visitCardModalsOpen[value as keyof typeof visitCardModalsOpen] = true">
-                    <div
-                         class="p-2 border-2 border-white h-full border-dashed justify-center flex items-center min-w-[375px] min-h-[214px]">
+                    <div class="flex flex-col items-center justify-center text-center p-2 w-full h-full">
                         <img v-if="streamScreen[value as keyof typeof streamScreen]"
-                             class="object-cover max-h-[100%] aspect-video z-0 flex-grow"
+                             class="object-contain max-h-full max-w-full"
                              :src="URL.createObjectURL(streamScreen[value as keyof typeof streamScreen] as Blob)">
-                        <span v-if="!streamScreen[value as keyof typeof streamScreen]"
-                              class="text-wrap max-w-[391px]">
-                            {{ value == 'business_card_front' ? 'Передняя часть визитки' : 'Задняя часть визитки' }}
-                        </span>
+                        <div v-else
+                             class="flex flex-col items-center text-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 class="h-12 w-12 mb-2"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-wrap">
+                                {{ value == 'business_card_front' ? 'Передняя часть визитки' : 'Задняя часть визитки' }}
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <input type="file"
                        class="hidden"
                        @change="handleHandFileUpload(value)"
                        :ref="value == 'business_card_front' ? 'userCardFront' : 'userCardBack'" />
-                <div @click="openFileWindow(value)">
+                <div @click="openFileWindow(value)"
+                     class="text-center py-2 px-4 bg-white border hover:border-[var(--brand-orange)] border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors">
                     Загрузить из галлереи
                 </div>
             </div>

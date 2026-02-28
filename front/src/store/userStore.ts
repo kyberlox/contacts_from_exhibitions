@@ -2,8 +2,8 @@ import { defineStore } from "pinia";
 
 export const useUserData = defineStore('userData', {
     state: () => ({
-        userId: '23663',
-        key: 'session_token_1233',
+        userId: '',
+        key: '',
         // userId: '2366',
         // key: 'session_token_123',
         isAdmin: false

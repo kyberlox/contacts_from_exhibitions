@@ -1,23 +1,46 @@
 <template>
 <SlotModal>
-    <div class="flex flex-col gap-1 h-full">
+    <div class="flex flex-col gap-6 h-full">
         <div
-             class="p-2 border-2 border-white h-full  border-dashed justify-center flex items-center min-w-[375px] min-h-[214px] relative">
-            <video class="object-cover max-h-full aspect-video z-0 h-full"
-                   ref="camCapture"
+             class="relative w-full aspect-[16/9] max-h-[70vh] rounded-xl overflow-hidden bg-gray-900 border-2 border-dashed border-gray-600 shadow-lg">
+            <video ref="camCapture"
                    autoplay
-                   playsinline>
+                   playsinline
+                   class="w-full h-full object-cover"></video>
 
-            </video>
-            <div class="absolute max-h-[100%] h-[500px] aspect-video border-green-500 border-4 bg-[#00000052]"></div>
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div class="border-2 border-white border-dashed rounded-lg w-[95%] h-[90%]  opacity-70"></div>
+            </div>
+
+            <div
+                 class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black opacity-20 pointer-events-none">
+            </div>
+
             <canvas ref="canvasElement"
                     class="hidden"></canvas>
         </div>
-        <div class="w-full">
-            <div class="m-auto rounded-lg bg-amber-400 hover:bg-amber-500 border-black border-1 w-fit py-2 px-4 text-center cursor-pointer"
-                 @click="capturePicture">
-                Фото
-            </div>
+
+        <div class="w-full px-4">
+            <button @click="capturePicture"
+                    class="w-full py-4 bg-[var(--brand-orange)] hover:bg-orange-400 cursor-pointer text-white font-semibold rounded-xl shadow-lg transform transition duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-50">
+                <div class="flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-6 w-6"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Сделать фото визитки
+                </div>
+            </button>
         </div>
     </div>
 </SlotModal>

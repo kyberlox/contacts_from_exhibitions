@@ -1,18 +1,19 @@
 <template>
-<div class="max-w-[1200px] m-auto mt-4">
-    <h1>Админ-панель</h1>
-    <div class="grid grid-cols-3 mt-2 gap-4">
+<div class="max-w-[1200px] m-auto mt-6">
+    <h1 class="text-2xl font-semibold mb-6">Контакты</h1>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         <RouterLink :to="{ name: 'contactEdit', params: { id: contact.id } }"
                     v-for="contact in contacts"
                     :key="contact.id"
-                    class="relative">
-            <CloseIcon class="w-[30px] absolute right-0 hover:scale-[1.08]"
+                    class="relative block ">
+            <CloseIcon class="w-7 h-7 absolute -top-2 -right-2 rounded-full p-1 shadow-md   cursor-pointer hover:scale-110 z-10"
                        @click.stop.capture.prevent="removeContact(contact.id)" />
-            <div class="border-1 p-2 border-orange rounded-lg">
-                <h2>{{ `ФИО: ` + contact.full_name }}</h2>
-                <div>{{ `Должность: ` + contact.position }}</div>
-                <div>{{ `Название компании: ` + contact.title }}</div>
-                <div>{{ `Название компании: ` + contact.exhibition_title }}</div>
+            <div
+                 class="border border-gray-200 rounded-xl p-5 bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+                <h2 class="text-lg font-medium  mb-2">{{ `ФИО: ` + contact.full_name }}</h2>
+                <h3 class="text-gray-600 mb-1">{{ `Название компании: ` + contact.title }}</h3>
+                <div class="text-gray-600 mb-1">{{ `Должность: ` + contact.position }}</div>
+                <div class="text-gray-600">{{ `Выставка: ` + contact.exhibition_title }}</div>
             </div>
         </RouterLink>
     </div>
