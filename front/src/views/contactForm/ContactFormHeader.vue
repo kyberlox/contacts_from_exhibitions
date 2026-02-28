@@ -109,9 +109,9 @@ export default defineComponent({
 
         const handleHandFileUpload = (key: string) => {
             if (!key) return
-            return key == 'business_card_front' ?
+            return key == 'business_card_front' && userCardFront.value[0].files[0] ?
                 streamScreen.value.business_card_front = userCardFront.value[0].files[0] :
-                streamScreen.value.business_card_back = userCardBack.value[0].files[0]
+                userCardBack.value[0].files[0] ? streamScreen.value.business_card_back = userCardBack.value[0].files[0] : ''
         }
 
         watch((streamScreen.value), () => {

@@ -80,7 +80,7 @@
                             <span class="w-5 h-5 border-2 border-gray-300 flex items-center justify-center rounded">
                                 <input type="checkbox"
                                        :name="checkbox.name"
-                                       :checked="questionaireData[checkboxBlock.name as keyof typeof questionaireData].includes(checkbox.name) || Boolean(checkbox.name == 'ДРУГОЕ' && additionalChoices.find(e => e.name == radiosRef.name as keyof typeof additionalChoices)?.value)"
+                                       :checked="questionaireData[checkboxBlock.name as keyof typeof questionaireData].includes(checkbox.name) || Boolean(checkbox.name == 'ДРУГОЕ' && additionalChoices.find(e => e.name == checkboxBlock.name as keyof typeof additionalChoices)?.value)"
                                        class="hidden"
                                        @change="handleProductPick('checkbox', checkboxBlock.name, checkbox.name)" />
                                 <span class="w-3 h-3 group-has-[input:checked]:bg-[var(--brand-orange)]"></span>
