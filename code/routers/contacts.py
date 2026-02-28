@@ -563,8 +563,8 @@ async def delete_contact(
     # TODO: Удалить связанные файлы с диска
     # Получаем файлы контакта
     files_result = await db.execute(
-        select(ContactFileAssociation).where(
-            ContactFileAssociation.contact_id == contact_id
+        select(contact_file_association).where(
+            contact_file_association.contact_id == contact_id
         )
     )
     file_associations = files_result.scalars().all()
