@@ -1,5 +1,6 @@
 <template>
 <div class="max-w-7xl m-auto mt-6 flex flex-col gap-4 justify-center w-full px-4">
+    <div class="text-lg font-semibold">{{ id ? 'Редактировать контакт' : 'Добавить контакт' }}</div>
     <div v-if="author"
          class="ml-auto text-sm text-gray-600"><b>{{ `Автор: ${author}` }}</b></div>
     <ContactFormHeader @fileUploaded="fileUploaded"
