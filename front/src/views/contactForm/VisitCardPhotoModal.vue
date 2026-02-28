@@ -45,7 +45,7 @@ export default defineComponent({
 
         const initCamera = () => {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true })
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
                     .then(stream => {
                         if (camCapture.value) {
                             camCapture.value.srcObject = stream;

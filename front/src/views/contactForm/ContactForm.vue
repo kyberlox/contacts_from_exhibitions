@@ -2,10 +2,12 @@
 <div class="max-w-7xl m-auto mt-4  flex flex-col gap-2 justify-center w-full">
     <div v-if="author"
          class="ml-auto"><b>{{ `Автор: ${author}` }}</b></div>
-    <ContactFormHeader @fileUploaded="fileUploaded" />
+    <ContactFormHeader @fileUploaded="fileUploaded"
+                       :contactId="id" />
     <div class="flex flex-col mt-2 gap-2"
          v-if="keywords.length">
-        <h1>Визитная карточка успешно распознана, нажмите на подсказку, чтобы скопировать текст
+        <h1>
+            Визитная карточка успешно распознана, нажмите на подсказку, чтобы скопировать текст
         </h1>
         <div class="flex flex-row flex-wrap gap-2">
             <div v-for="(key, index) in keywords"
@@ -42,14 +44,15 @@
                     <span class="w-5 h-5 border-2 border-[var(--brand-orange)] flex items-center justify-center">
                         <input type="radio"
                                class="hidden"
+                               :checked="questionaireData[radiosRef.name as keyof typeof questionaireData].includes(radio.name) || Boolean(radio.name == 'ДРУГОЕ' && additionalChoices.find(e => e.name == radiosRef.name as keyof typeof additionalChoices)?.value)"
                                :name=radiosRef.name
                                @change="handleProductPick('radio', radiosRef.name, radio.name)" />
                         <span class="w-3 h-3 group-has-[input:checked]:bg-green-500"></span>
                     </span>
-                    <span :class="{ 'group-has-[input:checked]:hidden': radio.name == 'Другое' }">{{
+                    <span :class="{ 'group-has-[input:checked]:hidden': radio.name == 'ДРУГОЕ' }">{{
                         radio.name }}
                     </span>
-                    <input v-if="radio.name == 'Другое'"
+                    <input v-if="radio.name == 'ДРУГОЕ'"
                            class="border-b-2 border-[var(--brand-orange)] outline-0 flex-grow invisible group-has-[input:checked]:visible"
                            v-model="additionalChoices.find(el => el.name == radiosRef.name)!.value" />
                 </label>
@@ -71,17 +74,17 @@
                                   class="w-5 h-5 border-2 border-[var(--brand-orange)] flex items-center justify-center">
                                 <input type="checkbox"
                                        :name="checkbox.name"
-                                       :checked="questionaireData[checkboxBlock.name as keyof typeof questionaireData].includes(checkbox.name)"
+                                       :checked="questionaireData[checkboxBlock.name as keyof typeof questionaireData].includes(checkbox.name) || Boolean(checkbox.name == 'ДРУГОЕ' && additionalChoices.find(e => e.name == radiosRef.name as keyof typeof additionalChoices)?.value)"
                                        class="hidden"
                                        @change="handleProductPick('checkbox', checkboxBlock.name, checkbox.name)" />
                                 <span class="w-3 h-3 group-has-[input:checked]:bg-green-500"></span>
                             </span>
-                            <span :class="{ 'group-has-[input:checked]:hidden': checkbox.name == 'Другое' }">
+                            <span :class="{ 'group-has-[input:checked]:hidden': checkbox.name == 'ДРУГОЕ' }">
                                 {{
                                     checkbox.name
                                 }}
                             </span>
-                            <input v-if="(checkbox.name == 'Другое')"
+                            <input v-if="(checkbox.name == 'ДРУГОЕ')"
                                    class="border-b-2 border-[var(--brand-orange)] outline-0 flex-grow invisible group-has-[input:checked]:visible"
                                    v-model="additionalChoices.find((e) => e.name == checkboxBlock.name)!.value" />
                         </label>
@@ -94,6 +97,14 @@
             <div class="border-1 m-auto border-gray-400 max-w-[300px] text-center rounded-lg p-2 cursor-pointer bg-green-400 hover:bg-green-600"
                  @click="saveContact">
                 Сохранить
+            </div>
+            <div class="m-auto max-w-[550px]">
+                <span>* Отправляя контактные данные, вы подтверждаете согласие с <a
+                       class="underline text-blue-600 hover:text-blue-400"
+                       href="https://exhibitions.emk.ru/api/user_agreement"
+                       download>пользовательским соглашением</a> и
+                    даёте
+                    разрешение на обработку персональных данных.</span>
             </div>
         </div>
     </div>
@@ -112,7 +123,8 @@ export interface IUsersPassport {
 }
 export interface IUsersQuestionaire {
     product_type: string[],
-    manufacturer: string[]
+    manufacturer: string[],
+    contact_type: string
 }
 
 export interface IGetContact {
@@ -135,16 +147,18 @@ export interface IGetContact {
     "exhibition_id": number,
     "questionnaire"?: {
         "manufacturer": string[],
-        "product_type": string[]
+        "product_type": string[],
+        "contact_type": string
     }
 }
 
-import { defineComponent, onMounted, ref, watch } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
 import ContactFormHeader from '@/views/contactForm/ContactFormHeader.vue';
 import { passport, checkboxGroup, radios } from '@/assets/static/formQuestions';
 import Api from '@/utils/Api';
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
+import { useUserData } from '@/store/userStore';
 
 export default defineComponent({
     name: 'contactForm',
@@ -171,7 +185,8 @@ export default defineComponent({
         });
         const questionaireData = ref<IUsersQuestionaire>({
             product_type: [],
-            manufacturer: []
+            manufacturer: [],
+            contact_type: ''
         });
 
         const checkboxGroupRef = ref(checkboxGroup);
@@ -179,7 +194,7 @@ export default defineComponent({
         const options = ref(['Менеджер1', 'менеджер2']);
         const additionalChoices = ref([
             {
-                name: "position",
+                name: "contact_type",
                 value: '',
             },
             {
@@ -194,42 +209,64 @@ export default defineComponent({
         const visitCard = ref<{ business_card_front: File | null, business_card_back: File | null }>({ business_card_front: null, business_card_back: null });
         const keywords = ref([]);
         const textInClip = ref();
+        const author = ref<string>();
 
         const handleProductPick = (type: 'radio' | 'checkbox', key: string, item: string) => {
             if (type == 'radio') {
-                if (item !== 'Другое') {
+                if (item !== 'ДРУГОЕ') {
                     additionalChoices.value.find(e => e.name == key)!.value = '';
-                    if (key in passportData.value) {
-                        passportData.value[key as keyof typeof passportData.value] = item;
-                    }
-                    else questionaireData.value[key as keyof typeof questionaireData.value].push(item);
-                }
-            }
-            else if (type == 'checkbox') {
-                if (item == 'Другое' && additionalChoices.value.find(e => e.name == key)) {
-                    additionalChoices.value.find(e => e.name == key)!.value = '';
-                }
-                else
                     if (key in passportData.value) {
                         passportData.value[key as keyof typeof passportData.value] = item;
                     }
                     else {
-                        if (!questionaireData.value[key as keyof typeof questionaireData.value].includes(item)) {
-                            questionaireData.value[key as keyof typeof questionaireData.value].push(item)
+                        if (Array.isArray(questionaireData.value[key as keyof typeof questionaireData.value])) {
+                            (questionaireData.value[key as keyof typeof questionaireData.value] as string[]).push(item);
                         }
-                        else questionaireData.value[key as keyof typeof questionaireData.value].splice(questionaireData.value[key as keyof typeof questionaireData.value].indexOf(item), 1)
+                        else if (typeof questionaireData.value[key as keyof typeof questionaireData.value] == 'string') {
+                            (questionaireData.value[key as keyof typeof questionaireData.value] as string) = item
+                        }
                     }
+                }
+            }
+            else if (type == 'checkbox') {
+
+                if (item == 'ДРУГОЕ' && additionalChoices.value.find(e => e.name == key)) {
+                    additionalChoices.value.find(e => e.name == key)!.value = '';
+                }
+                else if (!questionaireData.value[key as keyof typeof questionaireData.value].includes(item) && !additionalChoices.value.find(e => e.value == item)) {
+                    (questionaireData.value[key as keyof typeof questionaireData.value] as string[]).push(item);
+                }
+                else (questionaireData.value[key as keyof typeof questionaireData.value] as string[]).splice(questionaireData.value[key as keyof typeof questionaireData.value].indexOf(item), 1)
             }
         }
 
         const saveContact = () => {
-            const postBody = Object.assign(passportData.value, { questionnaire: questionaireData.value });
+            const postBody = JSON.parse(JSON.stringify({
+                ...passportData.value,
+                questionnaire: questionaireData.value
+            }));
+
+            const additionalChoicesKeys = ['contact_type', 'product_type', 'manufacturer']
+            additionalChoicesKeys.forEach(key => {
+
+                additionalChoices.value.forEach(e => {
+                    if (e.name == key && e.value) {
+                        if (Array.isArray(postBody.questionnaire[key]) && !postBody.questionnaire[key].includes(e.value)) {
+                            postBody.questionnaire[key].push(e.value)
+                        }
+                        else if (typeof postBody.questionnaire[key] == 'string') {
+                            postBody.questionnaire[key] = e.value
+                        }
+                    }
+                })
+            });
+
             if (pageType.value == 'new') {
                 Api.post('/contacts/', postBody)
                     .then((data) => {
                         if ((visitCard.value.business_card_back || visitCard.value.business_card_front) && data.id) {
                             const newBody = new FormData();
-                            Object.keys(visitCard.value).forEach(el => newBody.append(el, visitCard.value[el as keyof typeof visitCard.value] as Blob))
+                            Object.keys(visitCard.value).forEach(el => { if (visitCard.value[el as keyof typeof visitCard.value]) newBody.append(el, visitCard.value[el as keyof typeof visitCard.value] as Blob) })
                             Api.post(`contacts/${data.id}/files`, newBody)
                                 .then((data) => {
                                     if (data.message.includes('Успешно')) {
@@ -254,6 +291,9 @@ export default defineComponent({
                         }
                     })
             }
+            if (!useUserData().getAdmin) {
+                window.location.href = 'https://cloud.mail.ru/public/uorZ/bgpR3gNXm'
+            }
         }
 
         const fileUploaded = (imgObj: { business_card_front: File | null, business_card_back: File | null }) => {
@@ -264,7 +304,8 @@ export default defineComponent({
                 newBody.append('file', imgObj[e as keyof typeof imgObj] as File)
                 Api.post('ocr', newBody)
                     .then((data) => {
-                        keywords.value = data;
+                        if (data && data.length)
+                            keywords.value = data;
                     })
             })
         }
@@ -274,29 +315,78 @@ export default defineComponent({
             textInClip.value = key;
         }
 
-        const author = ref<string>();
 
         watch((props), () => {
+            const queastionaireTypes = {
+                manufacturer: checkboxGroup.find(e => e.name == 'manufacturer')?.choices.map(e => e.name),
+                product_type: checkboxGroup.find(e => e.name == 'product_type')?.choices.map(e => e.name),
+                contact_type: radios.values.map(e => e.name)
+            }
+
             if (props.id) {
                 pageType.value = 'edit';
                 Api.get(`contacts/${props.id}`)
                     .then((data: IGetContact) => {
                         author.value = data.author;
                         const keys = ['title', 'description', 'full_name', 'position', 'email', 'phone_number', 'city'];
+                        const questionnaireKeys = ['manufacturer', 'product_type', 'contact_type'];
                         keys.forEach(key => {
                             if (key in data) {
                                 passportData.value[key as keyof typeof passportData.value] = data[key as (keyof typeof data)] as string;
-                                if (data.questionnaire?.manufacturer) {
-                                    questionaireData.value.manufacturer = data.questionnaire.manufacturer;
-                                }
-                                if (data.questionnaire?.product_type) {
-                                    questionaireData.value.product_type = data.questionnaire.product_type;
-                                }
+                                questionnaireKeys.forEach(key => {
+                                    if (data.questionnaire && data.questionnaire[key as keyof typeof data.questionnaire]) {
+                                        const gettedResult = data.questionnaire[key as keyof typeof data.questionnaire];
+                                        const isElNotInDefaultQuestionaire = (typeof gettedResult == 'string' && !queastionaireTypes[key as keyof typeof queastionaireTypes]?.find(el => el == gettedResult)) ? gettedResult : Array.isArray(gettedResult) ? gettedResult.find(el => !queastionaireTypes[key as keyof typeof queastionaireTypes]?.includes(el)) : false;
+
+
+                                        if (isElNotInDefaultQuestionaire) {
+                                            const target = additionalChoices.value.find(i => i.name == key);
+                                            if (target) {
+                                                target.value = !Array.isArray(gettedResult) ? gettedResult : isElNotInDefaultQuestionaire;
+                                            }
+                                        } else {
+                                            if (typeof questionaireData.value[key as keyof typeof questionaireData.value] == 'string') {
+                                                (questionaireData.value[key as keyof typeof questionaireData.value] as string) = gettedResult as string;
+                                            } else
+                                                (questionaireData.value[key as keyof typeof questionaireData.value] as string[]) = (gettedResult as string[])
+                                        }
+
+                                    }
+                                })
                             }
                         });
                     })
             }
-            else pageType.value = 'new';
+            else {
+                pageType.value = 'new';
+                passportData.value = ({
+                    title: '',
+                    description: '',
+                    full_name: '',
+                    position: '',
+                    email: '',
+                    phone_number: '',
+                    city: ''
+                });
+                questionaireData.value = ({
+                    product_type: [],
+                    manufacturer: [],
+                    contact_type: ''
+                });
+                additionalChoices.value = ([
+                    {
+                        name: "contact_type",
+                        value: '',
+                    },
+                    {
+                        name: "product_type",
+                        value: '',
+                    },
+                    {
+                        name: 'manufacturer',
+                        value: ''
+                    }]);
+            };
         }, { immediate: true, deep: true })
 
         return {

@@ -54,13 +54,28 @@
 <script lang='ts'>
 import { defineComponent, ref, watch } from 'vue';
 import VisitCardPhotoModal from './VisitCardPhotoModal.vue';
+import Api from '@/utils/Api';
+import { urlToFile } from '@/utils/urlToFile';
+
+interface IGetContactFile {
+    "file_id": number,
+    "name": string,
+    "type": string,
+    "url": string,
+    "format": string,
+    "created_at": string
+}
 
 export default defineComponent({
-    props: {},
+    props: {
+        contactId: {
+            type: String
+        }
+    },
     components: {
         VisitCardPhotoModal
     },
-    setup(_, { emit }) {
+    setup(props, { emit }) {
         const camCapture = ref<HTMLVideoElement | null>(null);
         const canvasElement = ref<HTMLCanvasElement | null>(null);
 
@@ -78,9 +93,6 @@ export default defineComponent({
         })
 
         const openFileWindow = (key: string) => {
-            console.log(userCardBack.value);
-            console.log(userCardFront.value);
-
             return key == 'business_card_front' ? userCardFront.value[0].click() : userCardBack.value[0].click();
         }
 
@@ -95,14 +107,27 @@ export default defineComponent({
             emit('fileUploaded', streamScreen.value)
         }, { deep: true })
 
-        // const removePicture = () => {
-        //     streamScreen.value.length = 0;
-        // }
-
         const getPicture = (file: File, name: string) => {
             visitCardModalsOpen.value[name as keyof typeof visitCardModalsOpen.value] = false;
             streamScreen.value[name as keyof typeof streamScreen.value] = file;
         }
+
+        watch((props), () => {
+            if (props.contactId) {
+                Api.get(`contacts/${props.contactId}/files`)
+                    .then((data) => {
+                        if (data?.files.length) {
+                            const keys = ['business_card_back', 'business_card_front'];
+                            keys.forEach(key => {
+                                if (data.files.find((el: IGetContactFile) => el.type == key)) {
+                                    urlToFile(`${import.meta.env.VITE_API_URL}${data.files.find((el: IGetContactFile) => el.type == key).url}`, key)
+                                        .then(e => streamScreen.value[key as keyof typeof streamScreen.value] = e)
+                                }
+                            })
+                        }
+                    })
+            }
+        }, { immediate: true, deep: true })
 
         return {
             userCardFront,

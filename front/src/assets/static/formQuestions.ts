@@ -22,16 +22,16 @@ export const passport = [
     {
         title: 'E-mail',
         name: 'email'
-    },
+    }
 ]
 
 export const radios = {
-    name: 'position', 
+    name: 'contact_type', 
     values:[
-    { id: 1, name: 'Проектный институт', value: false },
-    { id: 2, name: 'Потребитель', value: false },
-    { id: 3, name: 'Конкурент', value: false },
-    { id: 4, name: 'Другое', value: false },
+    { id: 1, name: 'ПРОЕКТНЫЙ ИНСТИТУТ', value: false },
+    { id: 2, name: 'ПОТРЕБИТЕЛЬ', value: false },
+    { id: 3, name: 'КОНКУРЕНТ', value: false },
+    { id: 4, name: 'ДРУГОЕ', value: false },
 ]
 }
 
@@ -41,40 +41,40 @@ export const checkboxGroup = [
             name: 'product_type',
             choices: [
                 {
-                    id: 1, name: 'Краны шаровые', value: false, 
+                    id: 1, name: 'краны шаровые', value: false, 
                 },
                 {
-                    id: 2, name: 'Затворы дисковые', value: false, 
+                    id: 2, name: 'затворы дисковые', value: false, 
                 },
                 {
-                    id: 3, name: 'Клапаны обратные', value: false, 
+                    id: 3, name: 'клапаны обратные', value: false, 
                 },
                 {
-                    id: 4, name: 'Сильфоны и компенсаторы', value: false, 
+                    id: 4, name: 'сильфоны и компенсаторы', value: false, 
                 },
                 {
-                    id: 5, name: 'Задвижки', value: false, 
+                    id: 5, name: 'задвижки', value: false, 
                 },
                 {
-                    id: 6, name: 'Криогенная арматура', value: false, 
+                    id: 6, name: 'криогенная арматура', value: false, 
                 },
                 {
-                    id: 7, name: 'Блочно-модульное оборудование', value: false, 
+                    id: 7, name: 'блочно-модульное оборудование', value: false, 
                 },
                 {
-                    id: 8, name: 'Самостабилизатор давления', value: false, 
+                    id: 8, name: 'самостабилизатор давления', value: false, 
                 },
                 {
-                     id: 9, name: 'Электроприводы', value: false,
+                     id: 9, name: 'электроприводы', value: false,
                 },
                 {
-                     id: 10, name: 'Регулирующая арматура', value: false,
+                     id: 10, name: 'регулирующая арматура', value: false,
                 },
                 {
-                     id: 11, name: 'Предохранительная арматура', value: false,
+                     id: 11, name: 'предохранительная арматура', value: false,
                 },
                 {
-                     id: 12, name: 'Другое', value: false,
+                     id: 12, name: 'ДРУГОЕ', value: false,
                 },
             ]
     },
@@ -107,7 +107,7 @@ export const checkboxGroup = [
                     name: 'Техно-Сфера', value: false, id: 8
                 },
                 {
-                    name: 'Другое', value: false, id: 9
+                    name: 'ДРУГОЕ', value: false, id: 9
                 },
             ]
     },

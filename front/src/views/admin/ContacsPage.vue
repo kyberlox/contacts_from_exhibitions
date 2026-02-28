@@ -4,7 +4,10 @@
     <div class="grid grid-cols-3 mt-2 gap-4">
         <RouterLink :to="{ name: 'contactEdit', params: { id: contact.id } }"
                     v-for="contact in contacts"
-                    :key="contact.id">
+                    :key="contact.id"
+                    class="relative">
+            <CloseIcon class="w-[30px] absolute right-0 hover:scale-[1.08]"
+                       @click.stop.capture.prevent="removeContact(contact.id)" />
             <div class="border-1 p-2 border-orange rounded-lg">
                 <h2>{{ `ФИО: ` + contact.full_name }}</h2>
                 <div>{{ `Должность: ` + contact.position }}</div>
@@ -18,10 +21,13 @@
 <script lang='ts'>
 import Api from '@/utils/Api';
 import { defineComponent, onMounted, ref } from 'vue';
+import CloseIcon from '@/assets/icons/CloseIcon.svg?component';
 import DateUtil from '@/utils/DateUtil';
 
 export default defineComponent({
-    components: {},
+    components: {
+        CloseIcon
+    },
     props: {
         id: {
             type: Number,
@@ -40,12 +46,23 @@ export default defineComponent({
             "created_at": string
         }[]>([]);
 
-        onMounted(() => {
+        const contactInit = () => {
             Api.get(`contacts/?exhibition_id=${props.id}`)
                 .then((data) => contacts.value = data.items)
+        }
+
+        onMounted(() => {
+            contactInit()
         })
+
+        const removeContact = (id: number) => {
+            Api.delete(`contacts/${id}`)
+                .then(() => contactInit())
+        }
+
         return {
             contacts,
+            removeContact,
             DateUtil
         }
     }

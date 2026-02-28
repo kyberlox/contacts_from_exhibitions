@@ -9,5 +9,6 @@ export interface IPostContacts {
     questionnaire: {
         product_type: string[];
         manufacturer: string[];
+        contact_typeL: string
     }
 }

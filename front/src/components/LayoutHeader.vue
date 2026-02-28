@@ -11,7 +11,8 @@
                          class="h-8 sm:h-10 md:h-12 w-auto">
                 </RouterLink>
             </div>
-            <nav class="w-full sm:w-auto">
+            <nav class="w-full sm:w-auto"
+                 v-if="isAdmin">
                 <ul
                     class="header__navbar flex flex-wrap justify-center sm:justify-end items-center space-x-2 sm:space-x-4 md:space-x-8">
                     <RouterLink :to="{ name: nav.route }"
@@ -28,8 +29,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, computed } from "vue";
 import { headerLinks } from "@/assets/data";
+import { useUserData } from "@/store/userStore";
 
 export default defineComponent({
     name: "HeaderMos",
@@ -50,9 +52,10 @@ export default defineComponent({
         return {
             headerLinks,
             subPointActive,
-            handleSubpoints,
             activeIndex,
-            handleScrollTabs
+            handleSubpoints,
+            handleScrollTabs,
+            isAdmin: computed(() => useUserData().getAdmin)
         }
     }
 })
