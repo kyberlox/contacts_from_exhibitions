@@ -85,14 +85,14 @@ async def get_current_user_info(
     return current_user
 
 
-@router.get("/me_admin", response_model=UserSchema)
+@router.get("/me_admin")
 async def get_current_user_info(
         current_user: Optional[User] = Depends(get_optional_user)
 ):
     """Получение информации о текущем пользователе"""
     if not current_user:
         return {"is_admin" : False}
-        
+
     return {"is_admin" : current_user.is_admin}
 
 @router.get("/{user_id}", response_model=UserSchema)
