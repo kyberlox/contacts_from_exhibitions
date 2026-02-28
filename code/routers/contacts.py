@@ -443,21 +443,21 @@ async def update_contact(
             )
 
     # Проверяем на дубликаты (исключая текущий контакт)
-    update_dict = contact_data.dict(exclude_unset=True)
-    if update_dict:
-        # Добавляем ID выставки для проверки в рамках той же выставки
-        update_dict['exhibition_id'] = contact.exhibition_id
-        duplicate_fields = await check_contact_duplicate(
-            update_dict,
-            db,
-            exclude_contact_id=contact_id
-        )
+    # update_dict = contact_data.dict(exclude_unset=True)
+    # if update_dict:
+    #     # Добавляем ID выставки для проверки в рамках той же выставки
+    #     update_dict['exhibition_id'] = contact.exhibition_id
+    #     duplicate_fields = await check_contact_duplicate(
+    #         update_dict,
+    #         db,
+    #         exclude_contact_id=contact_id
+    #     )
 
-        if duplicate_fields:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Найден дубликат контакта по полям: {', '.join(duplicate_fields)}"
-            )
+    #     if duplicate_fields:
+    #         raise HTTPException(
+    #             status_code=status.HTTP_400_BAD_REQUEST,
+    #             detail=f"Найден дубликат контакта по полям: {', '.join(duplicate_fields)}"
+    #         )
 
     # Обновляем поля
     for field, value in contact_data.dict(exclude_unset=True).items():
