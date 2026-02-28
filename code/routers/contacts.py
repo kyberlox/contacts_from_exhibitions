@@ -564,7 +564,7 @@ async def delete_contact(
     # Получаем файлы контакта
     files_result = await db.execute(
         select(contact_file_association).where(
-            contact_file_association.с.contact_id == contact_id
+            contact_file_association.c.contact_id == contact_id
         )
     )
     file_associations = files_result.scalars().all()
