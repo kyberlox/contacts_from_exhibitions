@@ -571,7 +571,8 @@ async def delete_contact(
 
     # Удаляем файлы с диска
     for association in file_associations:
-        association_file_id = association.__dict__["file_id"]
+        print(type(association), association)
+        association_file_id = association
         file_result = await db.execute(
             select(FileModel).where(FileModel.id == association_file_id)
         )
