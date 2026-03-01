@@ -570,9 +570,7 @@ async def delete_contact(
     file_associations = files_result.scalars().all()
 
     # Удаляем файлы с диска
-    for association in file_associations:
-        print(type(association), association)
-        association_file_id = association.file_id
+    for association_file_id in file_associations:
         file_result = await db.execute(
             select(FileModel).where(FileModel.id == association_file_id)
         )
