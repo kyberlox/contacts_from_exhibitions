@@ -42,7 +42,7 @@ class ContactUpdate(BaseSchema):
     description: Optional[str] = None
     full_name: Optional[str] = Field(None, max_length=255)
     position: Optional[str] = Field(None, max_length=255)
-    email: Optional[EmailStr] = Field(None, max_length=255)
+    email: Optional[str] = Field(None, max_length=255)
     phone_number: Optional[str] = Field(None, max_length=255)
     city: Optional[str] = Field(None, max_length=255)
     questionnaire: Optional[Dict[str, Any]] = None
