@@ -571,8 +571,9 @@ async def delete_contact(
 
     # Удаляем файлы с диска
     for association in file_associations:
+        association_file_id = association.file_id
         file_result = await db.execute(
-            select(FileModel).where(FileModel.id == association.file_id)
+            select(FileModel).where(FileModel.id == association_file_id)
         )
         file = file_result.scalar_one_or_none()
         if file and Path(file.path).exists():
