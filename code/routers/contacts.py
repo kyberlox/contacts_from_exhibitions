@@ -374,7 +374,7 @@ async def get_contacts(
 
     #добавить ФИО автора
     for item in items:
-        user_id = item.author_id
+        user_id = item["author_id"]
         if user_id is not None:
             result = await db.execute(
                 select(User).where(User.id == user_id)
@@ -383,7 +383,7 @@ async def get_contacts(
 
             user_name = user.full_name
 
-            contact_dict['author'] = user_name
+            item['author'] = user_name
 
     return PaginatedResponse(
         total=total,
