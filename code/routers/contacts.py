@@ -314,6 +314,7 @@ async def get_contacts(
         search: Optional[str] = Query(None, description="Поиск по текстовым полям"),
         date_from: Optional[date] = Query(None, description="Дата создания от"),
         date_to: Optional[date] = Query(None, description="Дата создания до"),
+        author_id: Optional[str] = Query(None, description="Поиск по id автора")
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(get_optional_user)
 ):
@@ -339,7 +340,8 @@ async def get_contacts(
                 Contact.position.ilike(search_pattern),
                 Contact.email.ilike(search_pattern),
                 Contact.phone_number.ilike(search_pattern),
-                Contact.description.ilike(search_pattern)
+                Contact.description.ilike(search_pattern),
+                Contact.author_id.ilike(search_pattern)
             )
         )
 

@@ -131,6 +131,7 @@ class ContactList(BaseSchema):
     city: str
     exhibition_title: Optional[str] = None
     created_at: datetime
+    author_id: int
 
 # Схема контакта с деталями выставки
 class ContactWithExhibition(Contact):
