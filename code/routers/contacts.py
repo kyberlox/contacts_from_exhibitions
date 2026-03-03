@@ -307,7 +307,7 @@ async def create_contacts_batch(
 
     return created_contacts
 
-@router.get("/", response_model=PaginatedResponse, dependencies=[Depends(require_auth)])
+@router.get("/", dependencies=[Depends(require_auth)])
 async def get_contacts(
         pagination: PaginationParams = Depends(),
         exhibition_id: Optional[int] = Query(None, description="Фильтр по выставке"),
