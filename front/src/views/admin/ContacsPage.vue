@@ -3,7 +3,7 @@
      v-if="!isLoading">
     <h1 class="text-2xl font-semibold mb-6">Контакты</h1>
     <!-- Фильтр -->
-    <div class="w-full flex justify-start">
+    <div class="w-full flex flex-col justify-start">
         <select @change="handleFilterChange"
                 class="w-fit border-amber-600 border-1 p-1 mb-1 rounded-md outline-none">
             <option value="">Все</option>
@@ -12,8 +12,12 @@
                 {{ value }}
             </option>
         </select>
+        <div class="text-sm text-gray-600">
+            {{'Всего за сотрудником: ' + (contacts.filter(e => filterAuthor ? e.author_id == filterAuthor :
+                true)).length}}
+        </div>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-1">
         <RouterLink :to="{ name: 'contactEdit', params: { id: contact.id } }"
                     v-for="contact in contacts.filter(e => filterAuthor ? e.author_id == filterAuthor : true)"
                     :key="contact.id"
