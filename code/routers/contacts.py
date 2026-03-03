@@ -314,7 +314,7 @@ async def get_contacts(
         search: Optional[str] = Query(None, description="Поиск по текстовым полям"),
         date_from: Optional[date] = Query(None, description="Дата создания от"),
         date_to: Optional[date] = Query(None, description="Дата создания до"),
-        author_id: Optional[int] = Query(None, description="Поиск по id автора"),
+        author_id: Optional[str] = Query(None, description="Поиск по id автора"),
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(get_optional_user)
 ):
@@ -376,17 +376,17 @@ async def get_contacts(
 
     #добавить ФИО автора
     for item in items:
-        print(item, type(item))
+        print(item)
         user_id = item.author_id
-        # if user_id is not None:
-        #     result = await db.execute(
-        #         select(User).where(User.id == user_id)
-        #     )
-        #     user = result.scalar_one_or_none()
+        if user_id is not None:
+            result = await db.execute(
+                select(User).where(User.id == user_id)
+            )
+            user = result.scalar_one_or_none()
 
-        #     user_name = user.full_name
+            user_name = user.full_name
 
-        #     item['author'] = user_name
+            item.author_id = user_name
 
     return PaginatedResponse(
         total=total,
