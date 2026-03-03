@@ -31,7 +31,8 @@ export const radios = {
     { id: 1, name: 'ПРОЕКТНЫЙ ИНСТИТУТ', value: false },
     { id: 2, name: 'ПОТРЕБИТЕЛЬ', value: false },
     { id: 3, name: 'КОНКУРЕНТ', value: false },
-    { id: 4, name: 'ДРУГОЕ', value: false },
+    { id: 4, name: 'СОТРУДНИЧЕСТВО', value: false },
+    { id: 5, name: 'ДРУГОЕ', value: false },
 ]
 }
 
