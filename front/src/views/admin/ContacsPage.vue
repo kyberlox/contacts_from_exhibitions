@@ -13,7 +13,8 @@
             </option>
         </select>
         <div class="text-sm text-gray-600">
-            {{'Всего за сотрудником: ' + (contacts.filter(e => filterAuthor ? e.author_id == filterAuthor :
+            {{(filterAuthor ? 'Всего: ' : 'Всего за сотрудником: ') + (contacts.filter(e => filterAuthor ? e.author_id
+                == filterAuthor :
                 true)).length}}
         </div>
     </div>
@@ -83,7 +84,7 @@ export default defineComponent({
 
         const contactInit = () => {
             isLoading.value = true;
-            Api.get(`contacts/?exhibition_id=${props.id}`)
+            Api.get(`contacts/?exhibition_id=${props.id}&limit=10000`)
                 .then((data) => {
                     contacts.value = data.items;
                     getAllAuthors(data.items);
