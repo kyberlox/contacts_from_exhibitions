@@ -377,7 +377,7 @@ async def get_contacts(
     #добавить ФИО автора
     for item in items:
         print(item, type(item))
-        user_id = item["author_id"]
+        user_id = item.author_id
         # if user_id is not None:
         #     result = await db.execute(
         #         select(User).where(User.id == user_id)
