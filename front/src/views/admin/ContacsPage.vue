@@ -13,7 +13,7 @@
             </option>
         </select>
         <div class="text-sm text-gray-600">
-            {{(filterAuthor ? 'Всего: ' : 'Всего за сотрудником: ') + (contacts.filter(e => filterAuthor ? e.author_id
+            {{(filterAuthor ? 'Всего за сотрудником: ' : 'Всего: ') + (contacts.filter(e => filterAuthor ? e.author_id
                 == filterAuthor :
                 true)).length}}
         </div>
