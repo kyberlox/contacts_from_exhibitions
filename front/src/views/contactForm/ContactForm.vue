@@ -297,7 +297,11 @@ export default defineComponent({
                     .then(() => {
                         if ((visitCard.value.business_card_back || visitCard.value.business_card_front) && props.id) {
                             const newBody = new FormData();
-                            Object.keys(visitCard.value).forEach(el => newBody.append(el, visitCard.value[el as keyof typeof visitCard.value] as Blob))
+                            Object.keys(visitCard.value).forEach((el) => {
+                                if (visitCard.value[el as keyof typeof visitCard.value]) {
+                                    newBody.append(el, visitCard.value[el as keyof typeof visitCard.value] as Blob)
+                                }
+                            })
                             Api.post(`contacts/${props.id}/files`, newBody)
                                 .then((data) => {
                                     if (data.message.includes('Успешно')) {
