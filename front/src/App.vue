@@ -28,9 +28,12 @@ export default defineComponent({
     const isLoading = ref(true);
 
     onMounted(() => {
-      Api.get('/users/me_admin')
-        .then((data) => { if (data) useUserData().setAdmin(data.is_admin) })
-        .finally(() => isLoading.value = true)
+      // Api.get('/users/me_admin')
+      //   .then((data) => { if (data) useUserData().setAdmin(data.is_admin) })
+      //   .finally(() => isLoading.value = true)
+
+      Api.get('/users/me')
+        .then((data) => { if (!data.detail) { useUserData().setUserData(data) } })
     })
 
     return {

@@ -1,27 +1,46 @@
 import { defineStore } from "pinia";
 
+interface IData{
+            isAdmin: boolean,
+            created_at: string,
+            department: string,
+            full_name: string,
+            id: number,
+            is_admin: boolean,
+            position: string,
+            updated_at: string
+}
+
 export const useUserData = defineStore('userData', {
     state: () => ({
-        userId: '2366',
-        key: 'session_token_123',
+        userId: '',
+        key: '',
         // userId: '',
         // key: '',
-        isAdmin: false
+        data: {
+            isAdmin: false,
+            created_at: '',
+            department: '',
+            full_name: '',
+            id: 0,
+            is_admin: false,
+            position: '',
+            updated_at: ''
+        },
     }),
 
     actions: {
-        setUserData(id: string, key: string){
-            this.userId = id;
-            this.key = key;
+        setUserData(data: IData) {
+            this.data = data
         },
-        setAdmin(status: boolean){
-            this.isAdmin = status
+        setAdmin(status: boolean) {
+            this.data.isAdmin = status
         }
     },
 
     getters: {
-        getUserId: (state)=> state.userId,
-        getKey: (state)=> state.key,
-        getAdmin: (state) => state.isAdmin
+        getUserId: (state) => state.userId,
+        getKey: (state) => state.key,
+        getAdmin: (state) => state.data.isAdmin
     }
 });
