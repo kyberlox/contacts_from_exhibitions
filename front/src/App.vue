@@ -33,7 +33,7 @@ export default defineComponent({
       //   .finally(() => isLoading.value = true)
 
       Api.get('/users/me')
-        .then((data) => { if (!data.detail) { useUserData().setUserData(data) } })
+        .then((data) => { if (data && !data.detail) { useUserData().setUserData(data) } })
     })
 
     return {
