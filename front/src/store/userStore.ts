@@ -18,7 +18,6 @@ export const useUserData = defineStore('userData', {
         // userId: '',
         // key: '',
         data: {
-            isAdmin: false,
             created_at: '',
             department: '',
             full_name: '',
@@ -33,14 +32,12 @@ export const useUserData = defineStore('userData', {
         setUserData(data: IData) {
             this.data = data
         },
-        setAdmin(status: boolean) {
-            this.data.isAdmin = status
-        }
     },
 
     getters: {
         getUserId: (state) => state.userId,
         getKey: (state) => state.key,
-        getAdmin: (state) => state.data.isAdmin
+        getAdmin: (state) => state.data.is_admin,
+        getNeedCatalogRedirect: (state)=> !state.data.id || state.data.id == 0 
     }
 });

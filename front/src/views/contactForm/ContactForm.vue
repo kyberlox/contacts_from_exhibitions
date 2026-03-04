@@ -311,7 +311,7 @@ export default defineComponent({
                         }
                     })
             }
-            if (!useUserData().getAdmin) {
+            if (useUserData().getNeedCatalogRedirect) {
                 window.location.href = 'https://cloud.mail.ru/public/uorZ/bgpR3gNXm'
             }
         }
