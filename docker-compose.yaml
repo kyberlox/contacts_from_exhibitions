@@ -10,8 +10,8 @@ services:
       - ./postgresql/data:/var/lib/postgresql/data
       #- ./app_logs/postgers/:/var/log/postgresql
     ports:
-      - "5432:5432"
-      #- "127.0.0.1:5433:5432"
+      # - "5432:5432"
+      - "127.0.0.1:5433:5432"
     networks:
       - app-network
 
