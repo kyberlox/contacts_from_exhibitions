@@ -11,7 +11,7 @@ from models.user import User
 from schemas.user import ExternalUserInfo
 
 class AuthService:
-    def __init__(self, external_auth_url: str = "https://intranet.emk.org.ru/api/auth_router/check"):
+    def __init__(self, external_auth_url: str = "https://intranet.emk.ru/api/auth_router/check"):
         self.external_auth_url = external_auth_url
 
     async def get_user_info(self, session_id: str) -> Optional[Dict[str, Any]]:
