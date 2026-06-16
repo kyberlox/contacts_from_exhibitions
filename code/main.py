@@ -528,7 +528,7 @@ async def ocr_image(
         },
     }
     content = [file_url]
-    content.append({"type": "text", "text": new_promt})
+    content.append({"type": "text", "text": SUPER_PROMT})
 
     response = client.chat.completions.create(
         model=model_type,
