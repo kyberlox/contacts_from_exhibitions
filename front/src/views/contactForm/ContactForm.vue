@@ -326,7 +326,7 @@ export default defineComponent({
                 Api.post('ocr', newBody)
                     .then((data) => {
                         if (data && data.length) {
-                            data.forEach(e=>keywords.value.push(e))
+                            data.forEach((e: string)=>keywords.value.push(e))
                             toast('Изображение успешно распознано', { type: 'success', position: 'bottom-right' })
                         }
                         else {
