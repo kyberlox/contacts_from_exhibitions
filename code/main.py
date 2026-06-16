@@ -27,6 +27,16 @@ import tempfile
 import subprocess
 import os
 import re
+from dotenv import load_dotenv
+from openai import OpenAI
+import json
+import base64
+load_dotenv()
+from services.promt import SUPER_PROMT
+model_type = os.getenv('model_type')
+key_api = os.getenv('key_api')
+vseGPTurl = os.getenv('vseGPTurl')
+client = OpenAI(api_key = key_api, base_url=vseGPTurl) 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -430,80 +440,114 @@ async def get_user_agreement():
 #     except Exception as e:
 #         return HTTPException(status_code=500, detail={"error ocr": str(e)})
 
+# @app.post("/api/ocr") # 12 сек 10 запросов
+# async def ocr_image(
+#     file: UploadFile = File(...)
+# ):
+#     import re
+#     import io
+#     import numpy as np
+#     import cv2
+#     from PIL import Image, ImageEnhance, ImageFilter
+#     import pytesseract
+#     try:
+#         # contents = await file.read()
+#         contents = await file.read()
+#         image = Image.open(io.BytesIO(contents))
+
+#         # 1. Конвертация в grayscale
+#         gray = image.convert('L')
+
+#         # 2. Повышение контраста (умеренно)
+#         enhancer = ImageEnhance.Contrast(gray)
+#         gray = enhancer.enhance(1.8)
+
+#         # 3. Повышение резкости (Unsharp Mask)
+#         gray = gray.filter(ImageFilter.UnsharpMask(radius=1, percent=150, threshold=2))
+
+#         # 4. Медианный фильтр для удаления шума (размер 3)
+#         gray = gray.filter(ImageFilter.MedianFilter(size=3))
+
+#         # 5. Увеличение изображения, если оно маленькое (опционально)
+#         if gray.width < 1000 or gray.height < 1000:
+#             new_size = (gray.width * 2, gray.height * 2)
+#             gray = gray.resize(new_size, Image.Resampling.LANCZOS)
+
+#         # 6. Запускаем Tesseract с несколькими режимами PSM и выбираем лучший
+#         psms = [3, 4, 6, 11]  # 3 - авто, 4 - столбец, 6 - единый блок, 11 - разреженный текст
+#         best_text = ""
+#         max_lines = 0
+
+#         # for psm in psms:
+#         config = f'--oem 3 --psm 11'  # без whitelist, чтобы не терять символы
+#         text = pytesseract.image_to_string(gray, lang='rus+eng', config=config)
+#             # lines = [line.strip() for line in text.split('\n') if line.strip()]
+#             # if len(lines) > max_lines:
+#             #     max_lines = len(lines)
+#             #     best_text = text
+#             #     print(psm, 'че лучше')
+
+#         # 7. Очистка результата (разбивка по строкам, удаление пустых)
+#         result = [line.strip() for line in text.split('\n') if line.strip()]
+
+#         def is_good_line(line: str) -> bool:
+#             # Убираем лишние пробелы
+#             s = line.strip()
+#             if not s:
+#                 return False
+#             # Если строка состоит только из символов пунктуации/спецсимволов - отбрасываем
+#             # Подсчитаем количество буквенно-цифровых символов
+#             alnum_count = sum(c.isalnum() for c in s)
+#             # Общая длина
+#             total_len = len(s)
+#             # Если буквенно-цифровых символов меньше 30% - скорее всего мусор
+#             if total_len > 0 and alnum_count / total_len < 0.3:
+#                 return False
+#             # Проверяем, есть ли в строке хотя бы одна последовательность букв длиной >=2 (слово)
+#             if not re.search(r'[a-zA-Zа-яА-ЯёЁ]{2,}', s):
+#                 return False
+#             return True
+
+#         filtered_result = [line for line in result if is_good_line(line)]
+#         return result
+
+#         # return result
+#     except Exception as e:
+#         return HTTPException(status_code=500, detail={"error ocr": str(e)})
+
 @app.post("/api/ocr") # 12 сек 10 запросов
 async def ocr_image(
     file: UploadFile = File(...)
 ):
-    import re
-    import io
-    import numpy as np
-    import cv2
-    from PIL import Image, ImageEnhance, ImageFilter
-    import pytesseract
-    try:
-        # contents = await file.read()
-        contents = await file.read()
-        image = Image.open(io.BytesIO(contents))
+    image_bytes = await file.read()
+    base64_image = base64.b64encode(image_bytes).decode("utf-8")
+    file_url = {
+        "type": "image_url",
+        "image_url": {
+            "url": f"data:{file.content_type};base64,{base64_image}"
+        },
+    }
+    content = [file_url]
+    content.append({"type": "text", "text": new_promt})
 
-        # 1. Конвертация в grayscale
-        gray = image.convert('L')
-
-        # 2. Повышение контраста (умеренно)
-        enhancer = ImageEnhance.Contrast(gray)
-        gray = enhancer.enhance(1.8)
-
-        # 3. Повышение резкости (Unsharp Mask)
-        gray = gray.filter(ImageFilter.UnsharpMask(radius=1, percent=150, threshold=2))
-
-        # 4. Медианный фильтр для удаления шума (размер 3)
-        gray = gray.filter(ImageFilter.MedianFilter(size=3))
-
-        # 5. Увеличение изображения, если оно маленькое (опционально)
-        if gray.width < 1000 or gray.height < 1000:
-            new_size = (gray.width * 2, gray.height * 2)
-            gray = gray.resize(new_size, Image.Resampling.LANCZOS)
-
-        # 6. Запускаем Tesseract с несколькими режимами PSM и выбираем лучший
-        psms = [3, 4, 6, 11]  # 3 - авто, 4 - столбец, 6 - единый блок, 11 - разреженный текст
-        best_text = ""
-        max_lines = 0
-
-        # for psm in psms:
-        config = f'--oem 3 --psm 11'  # без whitelist, чтобы не терять символы
-        text = pytesseract.image_to_string(gray, lang='rus+eng', config=config)
-            # lines = [line.strip() for line in text.split('\n') if line.strip()]
-            # if len(lines) > max_lines:
-            #     max_lines = len(lines)
-            #     best_text = text
-            #     print(psm, 'че лучше')
-
-        # 7. Очистка результата (разбивка по строкам, удаление пустых)
-        result = [line.strip() for line in text.split('\n') if line.strip()]
-
-        def is_good_line(line: str) -> bool:
-            # Убираем лишние пробелы
-            s = line.strip()
-            if not s:
-                return False
-            # Если строка состоит только из символов пунктуации/спецсимволов - отбрасываем
-            # Подсчитаем количество буквенно-цифровых символов
-            alnum_count = sum(c.isalnum() for c in s)
-            # Общая длина
-            total_len = len(s)
-            # Если буквенно-цифровых символов меньше 30% - скорее всего мусор
-            if total_len > 0 and alnum_count / total_len < 0.3:
-                return False
-            # Проверяем, есть ли в строке хотя бы одна последовательность букв длиной >=2 (слово)
-            if not re.search(r'[a-zA-Zа-яА-ЯёЁ]{2,}', s):
-                return False
-            return True
-
-        filtered_result = [line for line in result if is_good_line(line)]
-        return result
-
-        # return result
-    except Exception as e:
-        return HTTPException(status_code=500, detail={"error ocr": str(e)})
+    response = client.chat.completions.create(
+        model=model_type,
+        max_tokens=8000,
+        messages=[{"role": "user", "content": content}],
+        response_format={"type": "json_object"}
+    )
+    res = response.model_dump()
+    need = res['choices'][0]['message']['content']
+    parsed_need = json.loads(need)
+    flat_list = [item for pair in parsed_need.items() for item in pair]
+    is_list = None
+    for item in flat_list:
+        if isinstance(item, list):
+            is_list = item
+            break
+    if is_list:
+        return is_list
+    return flat_list
 
 if __name__ == "__main__":
     uvicorn.run(
