@@ -371,15 +371,18 @@ async def get_exhibition_stats(
         
         tnr_font = Font(name='Times New Roman', size=12)
         for i, contact in enumerate(exhibition_contacts, start=2):
-            #поиск автора контакта 
-            author_result = await db.execute(
-                select(User).where(User.id == contact.author_id)
-            )
-            author = result.scalar_one_or_none()
-            author_fio = author.full_name
+            #поиск автора контакта
+            if contact.author_id:
+                author_result = await db.execute(
+                    select(User).where(User.id == contact.author_id)
+                )
+                author = result.scalar_one_or_none()
+                author_fio = author.full_name
+            else:
+                author_fio = "Не указан"
 
 
-            
+
             #Название компании
             cell = ws[f'A{i}']
             cell.value = contact.title if contact.title else 'Не указан'
