@@ -112,7 +112,7 @@ export default defineComponent({
                 })
         }
 // Под рефактор
-     const formatDate = (date) => {
+     const formatDate = (date: Date) => {
           return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
      }
 
