@@ -393,7 +393,11 @@ async def get_exhibition_stats(
 
             cell = ws[f'F{i}']
             cell.value = f"{exhibition.start_date} {exhibition.title}"
-            cell.font = tnr_font        
+            cell.font = tnr_font
+
+            cell = ws[f'G{i}']
+            cell.value = f"{contact.description}"
+            cell.font = tnr_font          
 
         excel_buffer = io.BytesIO()
         wb.save(excel_buffer)

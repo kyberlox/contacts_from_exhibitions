@@ -170,8 +170,9 @@ def get_questionnaire():
         else:
             return {}
 
-@router.post("/", response_model=ContactWithExhibition, status_code=status.HTTP_201_CREATED)
+@router.post("/{exhibition_id}", response_model=ContactWithExhibition, status_code=status.HTTP_201_CREATED)
 async def create_contact(
+        exhibition_id : Optional[str] ,
         contact_data: ContactCreate,
         background_tasks: BackgroundTasks,
         current_user: Optional[User] = Depends(get_optional_user),
@@ -179,7 +180,9 @@ async def create_contact(
         current_exhibition = Depends(get_current_exhibition)
 ):
     """Создание нового контакта"""
-
+    if exhibition_id != "" and exhibition_id != None:
+        exhibition_id = int(exhibition_id)
+        
     # Подготавливаем данные
     contact_dict = contact_data.dict(exclude_none=True)
     if "exhibition_id" in contact_dict and contact_dict["exhibition_id"] is not None:
