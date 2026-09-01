@@ -371,6 +371,7 @@ async def get_exhibition_stats(
         
         tnr_font = Font(name='Times New Roman', size=12)
         for i, contact in enumerate(exhibition_contacts, start=2):
+
             #поиск автора контакта
             if contact.author_id:
                 author_result = await db.execute(
@@ -380,6 +381,24 @@ async def get_exhibition_stats(
                 author_fio = author.full_name
             else:
                 author_fio = "Не указан"
+
+            #поиск доп информации
+            data = contact.questionnaire
+            contact_type = data['contact_type']
+            manufacturer = ", ".join(manufacturer for manufacturer in data['manufacturer'] if manufacturer)
+            products = ", ".join(product for product in data['products_type'] if product)
+
+            #вредничаю
+            
+            validated = "Да" if contact.is_validated else "Нет"
+            validated_author_fio = ""
+            if contact.validated_by_id:
+                validated_author_result = await db.execute(select(User).where(User.id == contact.is_validated))
+                validated_author = validated_author_result.scalar_one_or_none()
+                validated_author_fio = validated_author.full_name
+            
+            created_at = contact.created_at
+            updated_at = contact.updated_at
 
 
 
@@ -426,7 +445,44 @@ async def get_exhibition_stats(
             #Описание
             cell = ws[f'I{i}']
             cell.value = f"{contact.description}"
-            cell.font = tnr_font  
+            cell.font = tnr_font
+
+            #Кто клиент
+            cell = ws[f'J{i}']
+            cell.value = contact_type
+            cell.font = tnr_font
+
+            #Интересующая его продукция
+            cell = ws[f'K{i}']
+            cell.value = manufacturer
+            cell.font = tnr_font
+
+            #Какие производители его заинтересовали
+            cell = ws[f'L{i}']
+            cell.value = products
+            cell.font = tnr_font
+
+            #дата и время создания
+            cell = ws[f'M{i}']
+            cell.value = created_at
+            cell.font = tnr_font
+
+            #дата и время последнего обновления
+            cell = ws[f'N{i}']
+            cell.value = updated_at
+            cell.font = tnr_font
+
+            #статус подьверждение администратором выставки
+            cell = ws[f'O{i}']
+            cell.value = validated
+            cell.font = tnr_font
+
+            #ФИО подтвердившего администратора
+            cell = ws[f'P{i}']
+            cell.value = validated_author_fio
+            cell.font = tnr_font
+
+
 
         excel_buffer = io.BytesIO()
         wb.save(excel_buffer)
