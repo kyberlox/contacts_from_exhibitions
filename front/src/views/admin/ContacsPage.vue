@@ -33,7 +33,7 @@
                 <div class="text-gray-600 mb-1">{{ `Должность: ` + (contact.position || 'не заполнено') }}</div>
                 <div class="text-gray-600 mb-1">{{ `Выставка: ` + (contact.exhibition_title || 'не заполнено') }}</div>
                 <div class="text-black">{{ `Автор: ` + contact.author_id }}</div>
-                 <div v-if="contact.created_at" class="text-black">{{ `Дата: ` + formatDate(new Date(new Date(a.created_at.split('.')[0]).setHours(new Date(a.created_at.split('.')[0]).getHours() + 1))) }}</div>
+                 <div v-if="contact.created_at" class="text-black">{{ `Дата: ` + formatDate(new Date(new Date(contact.created_at.split('.')[0]).setHours(new Date(contact.created_at.split('.')[0]).getHours() + 1))) }}</div>
             </div>
         </RouterLink>
     </div>
