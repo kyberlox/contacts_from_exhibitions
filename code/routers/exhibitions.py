@@ -376,7 +376,7 @@ async def get_exhibition_stats(
                 author_result = await db.execute(
                     select(User).where(User.id == contact.author_id)
                 )
-                author = result.scalar_one_or_none()
+                author = author_result.scalar_one_or_none()
                 author_fio = author.full_name
             else:
                 author_fio = "Не указан"
