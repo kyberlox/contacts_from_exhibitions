@@ -385,8 +385,11 @@ async def get_exhibition_stats(
             #поиск доп информации
             data = contact.questionnaire or {}
             contact_type = data.get('contact_type', '')
-            manufacturers = ", ".join(manufacturer for manufacturer in data['manufacturer'] if data['manufacturer'])
-            products = ", ".join(product for product in data['products_type'] if data['products_type'])
+            manufacturer_list = data.get('manufacturer') or []
+            manufacturers = ", ".join(m for m in manufacturer_list if isinstance(m, str)) if isinstance(manufacturer_list, list) else ""
+
+            products_list = data.get('products_type') or []
+            products = ", ".join(p for p in products_list if isinstance(p, str)) if isinstance(products_list, list) else ""
 
             #вредничаю
             
