@@ -27,13 +27,13 @@
                        @click.stop.capture.prevent="removeContact(contact.id)" />
             <div
                  class="border border-gray-200 rounded-xl p-5 bg-white shadow-sm hover:shadow-md transition-all duration-200 h-full">
-                <div class="text-right text-sm w-full">{{ index }}</div>
+                <div class="text-right text-sm w-full">{{ index + 1 }}</div>
                 <h2 class="text-lg font-medium mb-2">{{ `ФИО: ` + (contact.full_name || 'не заполнено') }}</h2>
                 <h3 class="text-gray-600 mb-1">{{ `Название компании: ` + (contact.title || 'не заполнено') }}</h3>
                 <div class="text-gray-600 mb-1">{{ `Должность: ` + (contact.position || 'не заполнено') }}</div>
                 <div class="text-gray-600 mb-1">{{ `Выставка: ` + (contact.exhibition_title || 'не заполнено') }}</div>
                 <div class="text-black">{{ `Автор: ` + contact.author_id }}</div>
-                 <div v-if="contact.created_at" class="text-black">{{ `Дата: ` + contact.created_at.split('T')[0].split('-').reverse().join('.') }}</div>
+                 <div v-if="contact.created_at" class="text-black">{{ `Дата: ` + formatDate(new Date(new Date(a.created_at.split('.')[0]).setHours(new Date(a.created_at.split('.')[0]).getHours() + 1))) }}</div>
             </div>
         </RouterLink>
     </div>
@@ -111,6 +111,10 @@ export default defineComponent({
                     contactInit();
                 })
         }
+// Под рефактор
+     const formatDate = (date) => {
+          return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+     }
 
         return {
             contacts,
@@ -119,7 +123,8 @@ export default defineComponent({
             filterAuthor,
             handleFilterChange,
             removeContact,
-            DateUtil
+            DateUtil,
+            formatDate
         }
     }
 });
