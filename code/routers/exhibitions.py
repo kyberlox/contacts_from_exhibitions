@@ -383,9 +383,9 @@ async def get_exhibition_stats(
                 author_fio = "Не указан"
 
             #поиск доп информации
-            data = contact.questionnaire
-            contact_type = data['contact_type']
-            manufacturer = ", ".join(manufacturer for manufacturer in data['manufacturer'] if data['manufacturer'])
+            data = contact.questionnaire or {}
+            contact_type = data.get('contact_type', '')
+            manufacturers = ", ".join(manufacturer for manufacturer in data['manufacturer'] if data['manufacturer'])
             products = ", ".join(product for product in data['products_type'] if data['products_type'])
 
             #вредничаю
@@ -454,7 +454,7 @@ async def get_exhibition_stats(
 
             #Интересующая его продукция
             cell = ws[f'K{i}']
-            cell.value = manufacturer
+            cell.value = manufacturers
             cell.font = tnr_font
 
             #Какие производители его заинтересовали
