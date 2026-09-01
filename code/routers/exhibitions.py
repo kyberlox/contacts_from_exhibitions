@@ -395,7 +395,7 @@ async def get_exhibition_stats(
             validated = "Да" if contact.is_validated else "Нет"
 
             validated_author_fio = "Не указан"
-            if contact.validated_by_id:
+            if contact.validated_by_id is not None:
                 result = await db.execute(
                     select(User).where(User.id == contact.validated_by_id)
                 )
