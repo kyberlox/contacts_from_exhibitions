@@ -385,8 +385,8 @@ async def get_exhibition_stats(
             #поиск доп информации
             data = contact.questionnaire
             contact_type = data['contact_type']
-            manufacturer = ", ".join(manufacturer for manufacturer in data['manufacturer'] if manufacturer)
-            products = ", ".join(product for product in data['products_type'] if product)
+            manufacturer = ", ".join(manufacturer for manufacturer in data['manufacturer'] if data['manufacturer'])
+            products = ", ".join(product for product in data['products_type'] if data['products_type'])
 
             #вредничаю
             
