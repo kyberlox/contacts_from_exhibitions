@@ -20,19 +20,20 @@
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-1">
         <RouterLink :to="{ name: 'contactEdit', params: { id: contact.id } }"
-                    v-for="contact in contacts.filter(e => filterAuthor ? e.author_id == filterAuthor : true)"
+                    v-for="(contact, index) in contacts.filter(e => filterAuthor ? e.author_id == filterAuthor : true)"
                     :key="contact.id"
                     :class="['relative block transition-all duration-300 ease-in-out', 'opacity-100 scale-100']">
             <CloseIcon class="w-7 h-7 absolute -top-2 -right-2 rounded-full p-1 shadow-md cursor-pointer hover:scale-110 z-10 hover:bg-red-100 transition-all"
                        @click.stop.capture.prevent="removeContact(contact.id)" />
             <div
                  class="border border-gray-200 rounded-xl p-5 bg-white shadow-sm hover:shadow-md transition-all duration-200 h-full">
-                <div class="text-right text-sm w-full">{{ contact.id }}</div>
+                <div class="text-right text-sm w-full">{{ index }}</div>
                 <h2 class="text-lg font-medium mb-2">{{ `ФИО: ` + (contact.full_name || 'не заполнено') }}</h2>
                 <h3 class="text-gray-600 mb-1">{{ `Название компании: ` + (contact.title || 'не заполнено') }}</h3>
                 <div class="text-gray-600 mb-1">{{ `Должность: ` + (contact.position || 'не заполнено') }}</div>
                 <div class="text-gray-600 mb-1">{{ `Выставка: ` + (contact.exhibition_title || 'не заполнено') }}</div>
                 <div class="text-black">{{ `Автор: ` + contact.author_id }}</div>
+                 <div v-if="contact.created_at" class="text-black">{{ `Дата: ` + contact.created_at.split('T')[0].split('-').reverse().join('.') }}</div>
             </div>
         </RouterLink>
     </div>
