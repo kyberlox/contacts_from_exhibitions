@@ -371,33 +371,59 @@ async def get_exhibition_stats(
         
         tnr_font = Font(name='Times New Roman', size=12)
         for i, contact in enumerate(exhibition_contacts, start=2):
+            #поиск автора контакта 
+            author_result = await db.execute(
+                select(User).where(User.id == contact.author_id)
+            )
+            author = result.scalar_one_or_none()
+            author_fio = author.full_name
+
+
+            
+            #Название компании
             cell = ws[f'A{i}']
-            cell.value = contact.city if contact.city else 'Не указан'
+            cell.value = contact.title if contact.title else 'Не указан'
             cell.font = tnr_font
 
+            #ФИО контактного лица
             cell = ws[f'B{i}']
             cell.value = contact.full_name if contact.full_name else 'Не указан'
             cell.font = tnr_font
 
+            #Должность
             cell = ws[f'C{i}']
             cell.value = contact.position if contact.position else 'Не указана'
             cell.font = tnr_font
 
+            #Телефон
             cell = ws[f'D{i}']
             cell.value = str(contact.phone_number) if contact.phone_number else 'Не указан'
             cell.font = tnr_font
 
+            #Почта
             cell = ws[f'E{i}']
             cell.value = contact.email if contact.email else 'Не указан'
             cell.font = tnr_font
 
+            #Город контакта
             cell = ws[f'F{i}']
+            cell.value = contact.city if contact.city else 'Не указан'
+            cell.font = tnr_font
+
+            #Дата проведения и название мероприятия
+            cell = ws[f'G{i}']
             cell.value = f"{exhibition.start_date} {exhibition.title}"
             cell.font = tnr_font
 
-            cell = ws[f'G{i}']
+            #Автор котакта
+            cell = ws[f'H{i}']
+            cell.value = author_fio
+            cell.font = tnr_font
+
+            #Описание
+            cell = ws[f'I{i}']
             cell.value = f"{contact.description}"
-            cell.font = tnr_font          
+            cell.font = tnr_font  
 
         excel_buffer = io.BytesIO()
         wb.save(excel_buffer)
