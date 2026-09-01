@@ -7,6 +7,7 @@ from typing import List, Optional
 from datetime import date, datetime
 import os
 from pathlib import Path
+from datetime import timezone
 
 from models.database import get_db
 from models.exhibition import Exhibition
@@ -396,15 +397,18 @@ async def get_exhibition_stats(
 
             validated_author_fio = "Не указан"
             if contact.validated_by_id is not None:
-                result = await db.execute(
-                    select(User).where(User.id == contact.validated_by_id)
-                )
+                result = await db.execute(select(User).where(User.id == contact.validated_by_id))
                 author = result.scalar_one_or_none()
                 if author:
                     validated_author_fio = author.full_name
 
             created_at = contact.created_at
+            # Если есть tzinfo — приводим к UTC и убираем часовой пояс
+            if created_at.tzinfo is not None:
+                created_at = created_at.astimezone(timezone.utc).replace(tzinfo=None)
             updated_at = contact.updated_at
+            if updated_at.tzinfo is not None:
+                updated_at = updated_at.astimezone(timezone.utc).replace(tzinfo=None)
 
 
 
