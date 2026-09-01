@@ -392,14 +392,17 @@ async def get_exhibition_stats(
             products = ", ".join(p for p in products_list if isinstance(p, str)) if isinstance(products_list, list) else ""
 
             #вредничаю
-            
             validated = "Да" if contact.is_validated else "Нет"
-            validated_author_fio = ""
+
+            validated_author_fio = "Не указан"
             if contact.validated_by_id:
-                validated_author_result = await db.execute(select(User).where(User.id == contact.validated_by_id))
-                validated_author = validated_author_result.scalar_one_or_none()
-                validated_author_fio = validated_author.full_name
-            
+                result = await db.execute(
+                    select(User).where(User.id == contact.validated_by_id)
+                )
+                author = result.scalar_one_or_none()
+                if author:
+                    validated_author_fio = author.full_name
+
             created_at = contact.created_at
             updated_at = contact.updated_at
 
